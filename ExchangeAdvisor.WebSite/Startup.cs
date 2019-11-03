@@ -1,3 +1,4 @@
+using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.WebSite.Areas.Identity;
 using ExchangeAdvisor.WebSite.Data;
 using Microsoft.AspNetCore.Builder;
@@ -33,6 +34,7 @@ namespace ExchangeAdvisor.WebSite
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSingleton<WeatherForecastService>();
+            services.AddSingleton<ExchangeRateFetcher>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
