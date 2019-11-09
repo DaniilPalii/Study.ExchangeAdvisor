@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.WebSite", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.Domain", "ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj", "{242E5274-6389-4073-9575-44630A643643}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.Tests.UnitTests.DomainTests", "ExchangeAdvisor.Tests.UnitTests.DomainTests\ExchangeAdvisor.Tests.UnitTests.DomainTests.csproj", "{264F0C29-78A1-45E1-AEF7-44A492D1060E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{242E5274-6389-4073-9575-44630A643643}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{242E5274-6389-4073-9575-44630A643643}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{242E5274-6389-4073-9575-44630A643643}.Release|Any CPU.Build.0 = Release|Any CPU
+		{264F0C29-78A1-45E1-AEF7-44A492D1060E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{264F0C29-78A1-45E1-AEF7-44A492D1060E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{264F0C29-78A1-45E1-AEF7-44A492D1060E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{264F0C29-78A1-45E1-AEF7-44A492D1060E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

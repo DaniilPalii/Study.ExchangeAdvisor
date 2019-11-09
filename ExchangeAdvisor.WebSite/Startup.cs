@@ -33,6 +33,7 @@ namespace ExchangeAdvisor.WebSite
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
+            services.AddHttpClient();
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<ExchangeRateFetcher>();
         }

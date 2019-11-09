@@ -2,11 +2,13 @@
 
     <PropertyGroup>
         <TargetFramework>netcoreapp3.0</TargetFramework>
-        <RootNamespace>Domain</RootNamespace>
+        <RootNamespace>ExchangeAdvisor.Domain</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Values" />
+      <Reference Include="Microsoft.Extensions.Http, Version=3.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60">
+        <HintPath>..\..\..\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\3.0.0\ref\netcoreapp3.0\Microsoft.Extensions.Http.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>
