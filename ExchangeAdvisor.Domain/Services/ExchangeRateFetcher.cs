@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Values;
+using Newtonsoft.Json;
 
 namespace ExchangeAdvisor.Domain.Services
 {
@@ -14,19 +16,19 @@ namespace ExchangeAdvisor.Domain.Services
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<KeyValuePair<DateTime, double>[]> FetchHistoryAsync(
+        public async Task<IEnumerable<RateOnDay>> FetchRateHistoryAsync(
             DateTime startDate,
             DateTime endDate,
-            CurrencySymbol buyingCurrencySymbol,
-            CurrencySymbol sealingCurrencySymbol)
+            CurrencySymbol baseCurrencySymbol,
+            CurrencySymbol comparingCurrencySymbol)
         {
             var response = await CreateHttpClient()
                 .GetAsync(
                     $"history" +
                     $"?start_at={startDate:yyyy-MM-dd}" +
                     $"&end_at={endDate:yyyy-MM-dd}" +
-                    $"&base={buyingCurrencySymbol}" +
-                    $"&symbols={sealingCurrencySymbol}")
+                    $"&base={baseCurrencySymbol}" +
+                    $"&symbols={comparingCurrencySymbol}")
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
@@ -36,11 +38,20 @@ namespace ExchangeAdvisor.Domain.Services
                     $"Response code: {response.StatusCode}" +
                     $"Response message: {response.RequestMessage}");
             }
-
             var responseContentString = await response.Content.ReadAsStringAsync()
                 .ConfigureAwait(false);
-
-            return JsonSerializer.Deserialize<KeyValuePair<DateTime, double>[]>(responseContentString);
+            var ratesHistoryResponse = JsonConvert.DeserializeObject<RatesHistoryResponse>(responseContentString);
+            
+            return ratesHistoryResponse?.rates?.Select(r =>
+            {
+                var (day, ratesByCurrencies) = r;
+                
+                return new RateOnDay
+                {
+                    Day = day,
+                    Rate = ratesByCurrencies.Values.Single()
+                };
+            });
         }
 
         private HttpClient CreateHttpClient()
@@ -49,6 +60,14 @@ namespace ExchangeAdvisor.Domain.Services
             client.BaseAddress = new Uri("https://api.exchangeratesapi.io");
 
             return client;
+        }
+
+        private class RatesHistoryResponse
+        {
+            public IDictionary<DateTime, IDictionary<CurrencySymbol, double>> rates { get; set; }
+            public DateTime? start_at { get; set; }
+            public DateTime? end_at { get; set; }
+            public CurrencySymbol? @base { get; set; }
         }
 
         private readonly IHttpClientFactory httpClientFactory;

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -17,17 +18,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         public void Setup()
         {
             httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-            httpMessageHandlerMock.Protected()
-                .Setup<Task<HttpResponseMessage>>(
-                    "SendAsync",
-                    ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>()) 
-                .ReturnsAsync(
-                    new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent("[ ]")
-                    })
-                .Verifiable();
+            MockResponseMessage();
             
             httpClientFactoryMock = new Mock<IHttpClientFactory>();
             httpClientFactoryMock.Setup(m => m.CreateClient("Exchange Rates API"))
@@ -37,10 +28,10 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         }
 
         [Test]
-        public async Task FetchHistoryAsync()
+        public async Task WhenFetchHistoryAsync_ShouldSendProperRequest()
         {
             await exchangeRateFetcher
-                .FetchHistoryAsync(
+                .FetchRateHistoryAsync(
                     new DateTime(2019, 1, 1),
                     new DateTime(2019, 1, 31),
                     CurrencySymbol.USD,
@@ -60,6 +51,51 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                                         "&base=USD" +
                                         "&symbols=PLN"),
                     ItExpr.IsAny<CancellationToken>());
+        }
+
+        [Test]
+        public async Task WhenFetchHistoryAsync_ShouldDeserializeResponseContentProperly()
+        {
+            MockResponseMessage(
+                "{"
+                    + @"""rates"":{"
+                        + @"""2019-01-03"":{""PLN"":1.111},"
+                        + @"""2019-01-02"":{""PLN"":2.222}"
+                    + "},"
+                    + @"""start_at"":""2019-01-01"","
+                    + @"""base"":""USD"","
+                    + @"""end_at"":""2019-01-03"""
+                + "}");
+            
+            var rateHistory = (await exchangeRateFetcher
+                .FetchRateHistoryAsync(
+                    new DateTime(2019, 1, 1),
+                    new DateTime(2019, 1, 2),
+                    CurrencySymbol.USD,
+                    CurrencySymbol.PLN)
+                .ConfigureAwait(false))
+                    .ToArray();
+            
+            Assert.That(rateHistory.Length, Is.EqualTo(2));
+            Assert.That(rateHistory[0].Day, Is.EqualTo(new DateTime(2019, 1, 3)));
+            Assert.That(rateHistory[0].Rate, Is.EqualTo(1.111));
+            Assert.That(rateHistory[1].Day, Is.EqualTo(new DateTime(2019, 1, 2)));
+            Assert.That(rateHistory[1].Rate, Is.EqualTo(2.222));
+        }
+
+        private void MockResponseMessage(string messageContent = "")
+        {
+            httpMessageHandlerMock.Protected()
+                .Setup<Task<HttpResponseMessage>>(
+                    "SendAsync",
+                    ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
+                .ReturnsAsync(
+                    new HttpResponseMessage
+                    {
+                        StatusCode = HttpStatusCode.OK,
+                        Content = new StringContent(messageContent)
+                    })
+                .Verifiable();
         }
 
         private ExchangeRateFetcher exchangeRateFetcher;

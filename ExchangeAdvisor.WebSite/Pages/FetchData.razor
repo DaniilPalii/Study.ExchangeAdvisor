@@ -1,13 +1,12 @@
 ﻿@page "/fetchdata"
 
-@using ExchangeAdvisor.WebSite.Data
-@inject WeatherForecastService ForecastService
+@using ExchangeAdvisor.Domain.Services
+@using ExchangeAdvisor.Domain.Values
+@inject ExchangeRateFetcher ExchangeRateFetcher
 
-<h1>Weather forecast</h1>
+<h1>Rate history</h1>
 
-<p>This component demonstrates fetching data from a service.</p>
-
-@if (forecasts == null)
+@if (rateHistory == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -17,19 +16,15 @@ else
         <thead>
             <tr>
                 <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <th>Rate</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var rateOnDay in rateHistory)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>@rateOnDay.Day.ToShortDateString()</td>
+                    <td>@rateOnDay.Rate</td>
                 </tr>
             }
         </tbody>
@@ -37,10 +32,15 @@ else
 }
 
 @code {
-    WeatherForecast[] forecasts;
+    ICollection<RateOnDay> rateHistory;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await ForecastService.GetForecastAsync(DateTime.Now);
+        rateHistory = (await ExchangeRateFetcher.FetchRateHistoryAsync(
+            DateTime.Now.AddDays(-7),
+            DateTime.Now,
+            CurrencySymbol.EUR,
+            CurrencySymbol.PLN))
+                .ToArray();
     }
 }
