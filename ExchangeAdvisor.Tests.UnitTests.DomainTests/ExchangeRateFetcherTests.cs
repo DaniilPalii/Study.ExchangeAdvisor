@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Services;
+using ExchangeAdvisor.Domain.Services.Implementation;
 using ExchangeAdvisor.Domain.Values;
 using Moq;
 using Moq.Protected;

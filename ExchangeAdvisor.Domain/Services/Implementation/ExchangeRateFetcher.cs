@@ -2,14 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Values;
 using Newtonsoft.Json;
 
-namespace ExchangeAdvisor.Domain.Services
+namespace ExchangeAdvisor.Domain.Services.Implementation
 {
-    public class ExchangeRateFetcher
+    public class ExchangeRateFetcher : IExchangeRateFetcher
     {
         public ExchangeRateFetcher(IHttpClientFactory httpClientFactory)
         {
