@@ -1,3 +1,5 @@
+using ExchangeAdvisor.Domain.Services;
+using ExchangeAdvisor.Domain.Services.Implementation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -19,6 +21,8 @@ namespace ExchangeAdvisor.SignalRClient
         {
             services.AddRazorPages();
             services.AddServerSideBlazor();
+            services.AddHttpClient();
+            services.AddScoped<IExchangeRateFetcher, ExchangeRateFetcher>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

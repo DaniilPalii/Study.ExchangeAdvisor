@@ -1,5 +1,22 @@
 ﻿@page "/"
+@using ExchangeAdvisor.Domain.Services;
+@using ExchangeAdvisor.Domain.Values;
+@inject IExchangeRateFetcher ExchangeRateFetcher;
 
-<h1>Hello, world!</h1>
+<h1>Exchange rate history</h1>
+@ratesOnDay.Length;
 
-Welcome to your new app.
+@code {
+    RateOnDay[] ratesOnDay = Array.Empty<RateOnDay>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var fetchedRatesOnDay = await ExchangeRateFetcher.FetchRateHistoryAsync(
+            DateTime.Now.AddDays(-30),
+            DateTime.Now,
+            CurrencySymbol.EUR,
+            CurrencySymbol.PLN);
+
+        ratesOnDay = fetchedRatesOnDay.ToArray();
+    }
+}
