@@ -1,30 +1,37 @@
 ﻿@page "/"
+@using ExchangeAdvisor.Domain.Services;
+@using ExchangeAdvisor.Domain.Values;
+@inject IExchangeRateFetcher ExchangeRateFetcher;
 
 <h1>Exchange rate history</h1>
 
-<EjsChart Width="60%" Title="Sales Analysis">
-    <ChartPrimaryXAxis Title="Month" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
-    <ChartPrimaryYAxis Title="Sales in Dollar"></ChartPrimaryYAxis>
+<EjsChart Width="60%" Title="Rates">
+    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+    <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
     <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@Sales" XName="Month" YName="SalesValue" Type="ChartSeriesType.Column"></ChartSeries>
+        <ChartSeries DataSource="@ratesOnDay" XName="Day" YName="Rate" Type="ChartSeriesType.Column"></ChartSeries>
     </ChartSeriesCollection>
 </EjsChart>
 
 @code {
-    public class SalesInfo
+    RateOnDay[] ratesOnDay = Array.Empty<RateOnDay>();
+
+    protected override async Task OnInitializedAsync()
     {
-        public string Month;
-        public double SalesValue;
+//        var fetchedRatesOnDay = await ExchangeRateFetcher.FetchRateHistoryAsync(
+//            DateTime.Now,
+//            DateTime.Now.AddDays(-30),
+//            CurrencySymbol.EUR,
+//            CurrencySymbol.PLN);
+
+//        ratesOnDay = fetchedRatesOnDay.ToArray();
+        
+        ratesOnDay = new []
+        {
+            new RateOnDay {Day = DateTime.Now, Rate = 123}
+        };
+
+        await base.OnInitializedAsync();
     }
-    public List<SalesInfo> Sales = new List<SalesInfo>
-    {
-        new SalesInfo { Month = "Jan", SalesValue = 35 },
-        new SalesInfo { Month = "Feb", SalesValue = 28 },
-        new SalesInfo { Month = "Mar", SalesValue = 34 },
-        new SalesInfo { Month = "Apr", SalesValue = 32 },
-        new SalesInfo { Month = "May", SalesValue = 40 },
-        new SalesInfo { Month = "Jun", SalesValue = 32 },
-        new SalesInfo { Month = "Jul", SalesValue = 35 }
-    };
 }
