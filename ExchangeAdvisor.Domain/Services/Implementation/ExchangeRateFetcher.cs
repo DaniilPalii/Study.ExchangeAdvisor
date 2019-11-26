@@ -21,6 +21,8 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             CurrencySymbol baseCurrencySymbol,
             CurrencySymbol comparingCurrencySymbol)
         {
+            if (endDate < startDate) throw new ArgumentException("End date should be greater or equal to start date");
+            
             var response = await CreateHttpClient()
                 .GetAsync(
                     $"history" +
