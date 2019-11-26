@@ -4,7 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
 using ExchangeAdvisor.Domain.Values;
 using Moq;
@@ -13,6 +12,7 @@ using NUnit.Framework;
 
 namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
 {
+    [TestFixture]
     public class ExchangeRateFetcherTests
     {
         [SetUp]

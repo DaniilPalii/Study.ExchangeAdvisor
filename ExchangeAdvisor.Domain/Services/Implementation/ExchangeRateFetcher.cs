@@ -41,15 +41,10 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                 .ConfigureAwait(false);
             var ratesHistoryResponse = JsonConvert.DeserializeObject<RatesHistoryResponse>(responseContentString);
             
-            return ratesHistoryResponse?.rates?.Select(r =>
+            return ratesHistoryResponse?.rates?.Select(r => new RateOnDay
             {
-                var (day, ratesByCurrencies) = r;
-                
-                return new RateOnDay
-                {
-                    Day = day,
-                    Rate = ratesByCurrencies.Values.Single()
-                };
+                Day = r.Key,
+                Rate = r.Value.Values.Single()
             });
         }
 
