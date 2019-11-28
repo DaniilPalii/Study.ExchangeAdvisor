@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.WebClient", "ExchangeAdvisor.WebClient\ExchangeAdvisor.WebClient.csproj", "{B8B782C5-273E-4E18-A7F6-937E4B5A191D}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.Domain", "ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj", "{1C1155AB-EC37-47FF-A14D-3F83F5DA6BE5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.Tests.UnitTests.DomainTests", "ExchangeAdvisor.Tests.UnitTests.DomainTests\ExchangeAdvisor.Tests.UnitTests.DomainTests.csproj", "{F5D10002-3F4C-4A8F-9151-C5C3347A6385}"
@@ -17,10 +15,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{B8B782C5-273E-4E18-A7F6-937E4B5A191D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B8B782C5-273E-4E18-A7F6-937E4B5A191D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B8B782C5-273E-4E18-A7F6-937E4B5A191D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B8B782C5-273E-4E18-A7F6-937E4B5A191D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1C1155AB-EC37-47FF-A14D-3F83F5DA6BE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1C1155AB-EC37-47FF-A14D-3F83F5DA6BE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C1155AB-EC37-47FF-A14D-3F83F5DA6BE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
