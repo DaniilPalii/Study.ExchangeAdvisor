@@ -8,4 +8,8 @@
     <ProjectReference Include="..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Syncfusion.EJ2.Blazor" Version="17.3.0.29-beta" />
+  </ItemGroup>
+
 </Project>

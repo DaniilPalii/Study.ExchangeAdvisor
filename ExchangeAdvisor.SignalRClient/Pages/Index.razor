@@ -4,19 +4,27 @@
 @inject IExchangeRateFetcher ExchangeRateFetcher;
 
 <h1>Exchange rate history</h1>
-@ratesOnDay.Length;
+
+<EjsChart Width="60%" Title="Rates">
+    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+    <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
+    <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@ratesOnDay" XName="Day" YName="Rate" Type="ChartSeriesType.Column"></ChartSeries>
+    </ChartSeriesCollection>
+</EjsChart>
 
 @code {
-    RateOnDay[] ratesOnDay = Array.Empty<RateOnDay>();
+    IReadOnlyCollection<object> ratesOnDay = Array.Empty<object>();
 
     protected override async Task OnInitializedAsync()
     {
         var fetchedRatesOnDay = await ExchangeRateFetcher.FetchRateHistoryAsync(
-            DateTime.Now.AddDays(-30),
-            DateTime.Now,
+            DateTime.Today.AddDays(-30),
+            DateTime.Today,
             CurrencySymbol.EUR,
             CurrencySymbol.PLN);
 
-        ratesOnDay = fetchedRatesOnDay.ToArray();
+        ratesOnDay = fetchedRatesOnDay.Cast<object>().ToArray();
     }
 }
