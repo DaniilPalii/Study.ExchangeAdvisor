@@ -1,30 +1,57 @@
 ﻿@page "/"
-@using ExchangeAdvisor.Domain.Services;
-@using ExchangeAdvisor.Domain.Values;
-@inject IExchangeRateFetcher ExchangeRateFetcher;
+@using ExchangeAdvisor.Domain.Services
+@using ExchangeAdvisor.Domain.Values
+@using Syncfusion.EJ2.Blazor.Charts
+@inject IExchangeRateFetcher ExchangeRateFetcher
 
 <h1>Exchange rate history</h1>
-
-<EjsChart Width="60%" Title="Rates">
-    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.Category"></ChartPrimaryXAxis>
+<EjsChart>
+    <ChartPrimaryXAxis Title="Day"
+                       ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime">
+    </ChartPrimaryXAxis>
     <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
     <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@ratesOnDay" XName="Day" YName="Rate" Type="ChartSeriesType.Column"></ChartSeries>
+        <ChartSeries DataSource="@dayRates"
+                     XName="Day"
+                     YName="Rate"
+                     Type="ChartSeriesType.Line">
+            <ChartMarker Visible="true"></ChartMarker>
+            <ChartTrendlines>
+                @if (shouldShowTrendline)
+                {
+                    <ChartTrendline Type="TrendlineTypes.Exponential"
+                                    Width="1"
+                                    Name="Exponential"
+                                    Fill="#21427D">
+                        <ChartTrendlineMarker Visible="false"></ChartTrendlineMarker>
+                    </ChartTrendline>
+                }
+            </ChartTrendlines>
+        </ChartSeries>
     </ChartSeriesCollection>
 </EjsChart>
 
 @code {
-    IReadOnlyCollection<object> ratesOnDay = Array.Empty<object>();
+    IReadOnlyCollection<object> dayRates = Array.Empty<object>();
+    bool shouldShowTrendline = true;
 
     protected override async Task OnInitializedAsync()
     {
-        var fetchedRatesOnDay = await ExchangeRateFetcher.FetchRateHistoryAsync(
-            DateTime.Today.AddDays(-30),
+        await FetchRateHistoryAsync();
+    }
+
+    private async Task FetchRateHistoryAsync()
+    {
+        var fetchedDayRates = await ExchangeRateFetcher.FetchRateHistoryAsync(
+            DateTime.Today.AddDays(-60),
             DateTime.Today,
             CurrencySymbol.EUR,
             CurrencySymbol.PLN);
-
-        ratesOnDay = fetchedRatesOnDay.Cast<object>().ToArray();
+        dayRates = fetchedDayRates
+            .OrderBy(r => r.Day)
+            .Cast<object>()
+            .ToArray();
     }
+
 }
