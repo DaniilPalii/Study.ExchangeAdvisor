@@ -15,18 +15,44 @@
         <ChartSeries DataSource="@dayRates"
                      XName="Day"
                      YName="Rate"
-                     Type="ChartSeriesType.Line">
+                     Type="ChartSeriesType.Spline">
             <ChartMarker Visible="true"></ChartMarker>
         </ChartSeries>
     </ChartSeriesCollection>
 </EjsChart>
-<EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" CssClass="date-range-picker"></EjsDateRangePicker>
-<EjsButton @onclick="@FetchRateHistoryAsync" CssClass="e-flat">Refresh</EjsButton>
+<EjsDateRangePicker @bind-StartDate="@StartDate"
+                    @bind-EndDate="@EndDate"
+                    Width="180px"
+                    ShowClearButton="false"
+                    Max="@DateTime.Today"
+                    MinDays="1"
+                    StrictMode="true">
+</EjsDateRangePicker>
+<EjsDropDownList @bind-Value="@BaseCurrency"
+                 TValue="string"
+                 Placeholder="Base currency"
+                 DataSource="@CurrencySymbols"
+                 Width="80px">
+</EjsDropDownList>
+<EjsDropDownList @bind-Value="@ComparingCurrency"
+                 TValue="string"
+                 Placeholder="Comparing currency"
+                 DataSource="@CurrencySymbols"
+                 Width="80px">
+</EjsDropDownList>
+<EjsButton @onclick="@FetchRateHistoryAsync"
+           CssClass="e-flat">
+    Refresh
+</EjsButton>
 
 @code {
     IReadOnlyCollection<object> dayRates = Array.Empty<object>();
     DateTime? StartDate { get; set; } = DateTime.Today.AddDays(-30);
     DateTime? EndDate { get; set; } = DateTime.Today;
+    string? BaseCurrency { get; set; } = CurrencySymbol.EUR.ToString();
+    string? ComparingCurrency { get; set; } = CurrencySymbol.PLN.ToString();
+
+    IReadOnlyCollection<string> CurrencySymbols { get; } = Enum.GetNames(typeof(CurrencySymbol));
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,22 +61,20 @@
 
     private async Task FetchRateHistoryAsync()
     {
-        if (!StartDate.HasValue || !EndDate.HasValue) return;
-        
-        var fetchedDayRates = await ExchangeRateFetcher.FetchRateHistoryAsync(
-            StartDate.Value,
-            EndDate.Value,
-            CurrencySymbol.EUR,
-            CurrencySymbol.PLN);
-        dayRates = fetchedDayRates
+        if (StartDate == null || EndDate == null || BaseCurrency == null || ComparingCurrency == null)
+            return;
+
+        if (!Enum.TryParse(BaseCurrency, out CurrencySymbol baseCurrencySymbol)
+            || !Enum.TryParse(ComparingCurrency, out CurrencySymbol comparingCurrencySymbol))
+            return;
+
+        dayRates = (await ExchangeRateFetcher.FetchRateHistoryAsync(
+                StartDate.Value,
+                EndDate.Value,
+                baseCurrencySymbol,
+                comparingCurrencySymbol))
             .OrderBy(r => r.Day)
             .Cast<object>()
             .ToArray();
     }
 }
-
-<style>
-    .date-range-picker.e-input-group {
-        width: 200px;
-    }
-</style>
