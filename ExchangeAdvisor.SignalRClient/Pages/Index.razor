@@ -17,24 +17,16 @@
                      YName="Rate"
                      Type="ChartSeriesType.Line">
             <ChartMarker Visible="true"></ChartMarker>
-            <ChartTrendlines>
-                @if (shouldShowTrendline)
-                {
-                    <ChartTrendline Type="TrendlineTypes.Exponential"
-                                    Width="1"
-                                    Name="Exponential"
-                                    Fill="#21427D">
-                        <ChartTrendlineMarker Visible="false"></ChartTrendlineMarker>
-                    </ChartTrendline>
-                }
-            </ChartTrendlines>
         </ChartSeries>
     </ChartSeriesCollection>
 </EjsChart>
+<EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" CssClass="date-range-picker"></EjsDateRangePicker>
+<EjsButton @onclick="@FetchRateHistoryAsync" CssClass="e-flat">Refresh</EjsButton>
 
 @code {
     IReadOnlyCollection<object> dayRates = Array.Empty<object>();
-    bool shouldShowTrendline = true;
+    DateTime? StartDate { get; set; } = DateTime.Today.AddDays(-30);
+    DateTime? EndDate { get; set; } = DateTime.Today;
 
     protected override async Task OnInitializedAsync()
     {
@@ -43,9 +35,11 @@
 
     private async Task FetchRateHistoryAsync()
     {
+        if (!StartDate.HasValue || !EndDate.HasValue) return;
+        
         var fetchedDayRates = await ExchangeRateFetcher.FetchRateHistoryAsync(
-            DateTime.Today.AddDays(-60),
-            DateTime.Today,
+            StartDate.Value,
+            EndDate.Value,
             CurrencySymbol.EUR,
             CurrencySymbol.PLN);
         dayRates = fetchedDayRates
@@ -53,5 +47,10 @@
             .Cast<object>()
             .ToArray();
     }
-
 }
+
+<style>
+    .date-range-picker.e-input-group {
+        width: 200px;
+    }
+</style>
