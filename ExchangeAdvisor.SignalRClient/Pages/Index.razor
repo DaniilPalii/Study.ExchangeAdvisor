@@ -3,19 +3,26 @@
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
 @inject IExchangeRateFetcher ExchangeRateFetcher
+@inject IExchangeRateForecaster ExchangeRateForecaster
 
 <h1>Exchange rate history</h1>
 <EjsChart>
-    <ChartPrimaryXAxis Title="Day"
-                       ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime">
+    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime">
     </ChartPrimaryXAxis>
     <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
     <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@dayRates"
+        <ChartSeries DataSource="@historicalDayRates"
                      XName="Day"
                      YName="Rate"
-                     Type="ChartSeriesType.Spline">
+                     Type="ChartSeriesType.Line">
+            <ChartMarker Visible="true"></ChartMarker>
+        </ChartSeries>
+        <ChartSeries DataSource="@forecastDayRates"
+                     XName="Day"
+                     YName="Rate"
+                     Fill="#46D246"
+                     Type="ChartSeriesType.Line">
             <ChartMarker Visible="true"></ChartMarker>
         </ChartSeries>
     </ChartSeriesCollection>
@@ -24,7 +31,6 @@
                     @bind-EndDate="@EndDate"
                     Width="180px"
                     ShowClearButton="false"
-                    Max="@DateTime.Today"
                     MinDays="1"
                     StrictMode="true">
 </EjsDateRangePicker>
@@ -40,13 +46,14 @@
                  DataSource="@CurrencySymbols"
                  Width="80px">
 </EjsDropDownList>
-<EjsButton @onclick="@FetchRateHistoryAsync"
+<EjsButton @onclick="@RefreshRatesAsync"
            CssClass="e-flat">
     Refresh
 </EjsButton>
 
 @code {
-    IReadOnlyCollection<object> dayRates = Array.Empty<object>();
+    IReadOnlyCollection<object> historicalDayRates = Array.Empty<object>();
+    IReadOnlyCollection<object> forecastDayRates = Array.Empty<object>();
     DateTime? StartDate { get; set; } = DateTime.Today.AddDays(-30);
     DateTime? EndDate { get; set; } = DateTime.Today;
     string? BaseCurrency { get; set; } = CurrencySymbol.EUR.ToString();
@@ -56,10 +63,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await FetchRateHistoryAsync();
+        await RefreshRatesAsync();
     }
 
-    private async Task FetchRateHistoryAsync()
+    private async Task RefreshRatesAsync()
     {
         if (StartDate == null || EndDate == null || BaseCurrency == null || ComparingCurrency == null)
             return;
@@ -68,13 +75,29 @@
             || !Enum.TryParse(ComparingCurrency, out CurrencySymbol comparingCurrencySymbol))
             return;
 
-        dayRates = (await ExchangeRateFetcher.FetchRateHistoryAsync(
-                StartDate.Value,
-                EndDate.Value,
-                baseCurrencySymbol,
-                comparingCurrencySymbol))
-            .OrderBy(r => r.Day)
-            .Cast<object>()
-            .ToArray();
+        if (StartDate > DateTime.Today) StartDate = DateTime.Today;
+
+        if (EndDate > DateTime.Today)
+        {
+            var nonCastedHistoricalDayRates = (await ExchangeRateFetcher
+                .FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrencySymbol, comparingCurrencySymbol))
+                .OrderBy(r => r.Day)
+                .ToArray();
+            historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
+                .ToArray();
+            var nonCastedForecastDayRates = ExchangeRateForecaster.Forecast(nonCastedHistoricalDayRates, EndDate.Value);
+            forecastDayRates = new []{ historicalDayRates.Last() }
+                .Concat(nonCastedForecastDayRates.Cast<object>())
+                .ToArray();
+        }
+        else
+        {
+            historicalDayRates = (await ExchangeRateFetcher
+                .FetchRateHistoryAsync(StartDate.Value, EndDate.Value, baseCurrencySymbol, comparingCurrencySymbol))
+                .OrderBy(r => r.Day)
+                .Cast<object>()
+                .ToArray();
+        }
     }
+
 }

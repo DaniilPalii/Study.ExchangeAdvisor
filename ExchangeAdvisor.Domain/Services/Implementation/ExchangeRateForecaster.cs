@@ -28,10 +28,12 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             return Enumerable.Range(
                     Convert.ToInt32(lastSourceDayNumber) + 1,
                     Convert.ToInt32(predictionFinishDayNumber - lastSourceDayNumber))
-                .Select(dayNumber => new RateOnDay
+                .Select(n => (dayNumber: n, day: ToDay(n)))
+                .Where(d => IsNotWeekend(d.day))
+                .Select(d => new RateOnDay
                 {
-                    Day = ToDay(dayNumber),
-                    Rate = interpolation.Interpolate(dayNumber)
+                    Day = d.day,
+                    Rate = interpolation.Interpolate(d.dayNumber)
                 });
         }
 
@@ -43,6 +45,12 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
         private static DateTime ToDay(double dayNumber)
         {
             return DateTime.MinValue.AddDays(dayNumber);
+        }
+
+        private static bool IsNotWeekend(DateTime day)
+        {
+            return day.DayOfWeek != DayOfWeek.Sunday 
+                && day.DayOfWeek != DayOfWeek.Saturday;
         }
     }
 }

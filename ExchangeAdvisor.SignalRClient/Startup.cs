@@ -23,6 +23,7 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddServerSideBlazor();
             services.AddHttpClient();
             services.AddScoped<IExchangeRateFetcher, ExchangeRateFetcher>();
+            services.AddScoped<IExchangeRateForecaster, ExchangeRateForecaster>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
