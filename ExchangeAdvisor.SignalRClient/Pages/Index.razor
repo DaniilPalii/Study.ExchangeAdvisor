@@ -7,49 +7,31 @@
 
 <h1>Exchange rate history</h1>
 <EjsChart>
-    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime">
-    </ChartPrimaryXAxis>
+    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime"></ChartPrimaryXAxis>
     <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
-    <ChartTooltipSettings Enable="true"></ChartTooltipSettings>
+    <ChartTooltipSettings Enable="true" Shared="true"></ChartTooltipSettings>
+    <ChartZoomSettings EnableSelectionZooming="true" EnableMouseWheelZooming="true" EnablePinchZooming="true"
+                       EnableDeferredZooming="false" EnableScrollbar="true" EnablePan="true">
+    </ChartZoomSettings>
     <ChartSeriesCollection>
-        <ChartSeries DataSource="@historicalDayRates"
-                     XName="Day"
-                     YName="Rate"
-                     Type="ChartSeriesType.Line">
+        <ChartSeries DataSource="@historicalDayRates" XName="Day" YName="Rate" Type="ChartSeriesType.Line">
             <ChartMarker Visible="true"></ChartMarker>
         </ChartSeries>
-        <ChartSeries DataSource="@forecastDayRates"
-                     XName="Day"
-                     YName="Rate"
-                     Fill="#46D246"
-                     Type="ChartSeriesType.Line">
+        <ChartSeries DataSource="@forecastDayRates" XName="Day" YName="Rate" Fill="#46D246" Type="ChartSeriesType.Line">
             <ChartMarker Visible="true"></ChartMarker>
         </ChartSeries>
     </ChartSeriesCollection>
 </EjsChart>
-<EjsDateRangePicker @bind-StartDate="@StartDate"
-                    @bind-EndDate="@EndDate"
-                    Width="180px"
-                    ShowClearButton="false"
-                    MinDays="1"
-                    StrictMode="true">
+<EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" Width="180px" ShowClearButton="false"
+                    MinDays="1" StrictMode="true">
 </EjsDateRangePicker>
-<EjsDropDownList @bind-Value="@BaseCurrency"
-                 TValue="string"
-                 Placeholder="Base currency"
-                 DataSource="@CurrencySymbols"
+<EjsDropDownList @bind-Value="@BaseCurrency" TValue="string" Placeholder="Base currency" DataSource="@CurrencySymbols"
                  Width="80px">
 </EjsDropDownList>
-<EjsDropDownList @bind-Value="@ComparingCurrency"
-                 TValue="string"
-                 Placeholder="Comparing currency"
-                 DataSource="@CurrencySymbols"
-                 Width="80px">
+<EjsDropDownList @bind-Value="@ComparingCurrency" TValue="string" Placeholder="Comparing currency"
+                 DataSource="@CurrencySymbols" Width="80px">
 </EjsDropDownList>
-<EjsButton @onclick="@RefreshRatesAsync"
-           CssClass="e-flat">
-    Refresh
-</EjsButton>
+<EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
 
 @code {
     IReadOnlyCollection<object> historicalDayRates = Array.Empty<object>();
@@ -86,7 +68,7 @@
             historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
                 .ToArray();
             var nonCastedForecastDayRates = ExchangeRateForecaster.Forecast(nonCastedHistoricalDayRates, EndDate.Value);
-            forecastDayRates = new []{ historicalDayRates.Last() }
+            forecastDayRates = new[] { historicalDayRates.Last() }
                 .Concat(nonCastedForecastDayRates.Cast<object>())
                 .ToArray();
         }
@@ -97,6 +79,7 @@
                 .OrderBy(r => r.Day)
                 .Cast<object>()
                 .ToArray();
+            forecastDayRates = Array.Empty<object>();
         }
     }
 
