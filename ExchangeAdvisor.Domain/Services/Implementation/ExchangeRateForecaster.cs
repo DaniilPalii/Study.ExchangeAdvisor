@@ -8,14 +8,6 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 {
     public class ExchangeRateForecaster : IExchangeRateForecaster
     {
-        public IEnumerable<RateOnDay> Forecast(IReadOnlyCollection<RateOnDay> source, DateTime forecastFinishDay)
-        {
-            return Forecast(
-                source,
-                forecastFinishDay,
-                ForecastMethod.BarycentricInterpolatePolynomialEquidistantSorted);
-        }
-
         public IEnumerable<RateOnDay> Forecast(
             IReadOnlyCollection<RateOnDay> source, 
             DateTime forecastFinishDay,
@@ -46,6 +38,31 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                 });
         }
 
+        public IEnumerable<RateOnDay> ForecastOnKnownAndUnknownRange(
+            IReadOnlyCollection<RateOnDay> source, 
+            DateTime forecastFinishDay,
+            ForecastMethod forecastMethod)
+        {
+            if (source.Count < 2)
+                throw new ArgumentException("Source must has 2 or more values");
+
+            var createInterpolation = GetInterpolationCreationFunction(forecastMethod);
+            var interpolation = createInterpolation(
+                source.Select(r => ToDayNumber(r.Day)).ToArray(),
+                source.Select(r => r.Rate).ToArray());
+            var firstSourceDayNumber = ToDayNumber(source.First().Day);
+
+            return Enumerable.Range(
+                    start: Convert.ToInt32(firstSourceDayNumber),
+                    count: Convert.ToInt32(ToDayNumber(forecastFinishDay) - firstSourceDayNumber))
+                .Select(n => (dayNumber: n, day: ToDay(n)))
+                .Select(d => new RateOnDay
+                {
+                    Day = d.day,
+                    Rate = interpolation.Interpolate(d.dayNumber)
+                });
+        }
+
         private static Func<double[], double[], IInterpolation> GetInterpolationCreationFunction(ForecastMethod forecastMethod)
         {
             switch (forecastMethod)
@@ -60,8 +77,6 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                     return CubicSpline.InterpolateAkimaSorted;
                 case ForecastMethod.CubicSplineInterpolateNaturalSorted:
                     return CubicSpline.InterpolateNaturalSorted;
-//                case ForecastMethod.PolynomialInterpolationAlgorithmGenerateSamplePoints:
-//                    return PolynomialInterpolationAlgorithm.GenerateSamplePoints;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -90,7 +105,6 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
         BarycentricInterpolateRationalFloaterHormannSorted,
         BulirschStoerRationalInterpolationInterpolateSorted,
         CubicSplineInterpolateAkimaSorted,
-        CubicSplineInterpolateNaturalSorted,
-//        PolynomialInterpolationAlgorithmGenerateSamplePoints,
+        CubicSplineInterpolateNaturalSorted
     }
 }

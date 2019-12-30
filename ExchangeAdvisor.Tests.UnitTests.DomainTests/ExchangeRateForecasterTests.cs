@@ -33,9 +33,9 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
             
             Assert.That(result.Length, Is.EqualTo(2));
             Assert.That(result[0].Day, Is.EqualTo(new DateTime(2019, 1, 7)));
-            Assert.That(result[0].Rate, Is.EqualTo(7).Within(forecastTolerance));
+            Assert.That(result[0].Rate, Is.EqualTo(7).Within(ForecastTolerance));
             Assert.That(result[1].Day, Is.EqualTo(new DateTime(2019, 1, 8)));
-            Assert.That(result[1].Rate, Is.EqualTo(8).Within(forecastTolerance));
+            Assert.That(result[1].Rate, Is.EqualTo(8).Within(ForecastTolerance));
         }
 
         [Test]
@@ -49,7 +49,10 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
             var forecastFinishDay = new DateTime(2019, 1, 2);
             
             Assert.Throws<ArgumentException>(
-                () => exchangeRateForecaster.Forecast(source, forecastFinishDay));
+                () => exchangeRateForecaster.Forecast(
+                    source,
+                    forecastFinishDay,
+                    ForecastMethod.BarycentricInterpolatePolynomialEquidistantSorted));
         }
 
         [Test]
@@ -62,10 +65,13 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
             var forecastFinishDay = new DateTime(2019, 2, 2);
             
             Assert.Throws<ArgumentException>(
-                () => exchangeRateForecaster.Forecast(source, forecastFinishDay));
+                () => exchangeRateForecaster.Forecast(
+                    source,
+                    forecastFinishDay,
+                    ForecastMethod.BarycentricInterpolatePolynomialEquidistantSorted));
         }
 
-        private const double forecastTolerance = 0.0001;
+        private const double ForecastTolerance = 0.0001;
         private ExchangeRateForecaster exchangeRateForecaster;
     }
 }

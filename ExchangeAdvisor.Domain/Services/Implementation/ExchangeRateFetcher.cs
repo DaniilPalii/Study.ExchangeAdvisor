@@ -43,11 +43,13 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                 .ConfigureAwait(false);
             var ratesHistoryResponse = JsonConvert.DeserializeObject<RatesHistoryResponse>(responseContentString);
             
-            return ratesHistoryResponse?.rates?.Select(r => new RateOnDay
-            {
-                Day = r.Key,
-                Rate = r.Value.Values.Single()
-            });
+            return ratesHistoryResponse?.rates
+                ?.Select(r => new RateOnDay
+                {
+                    Day = r.Key,
+                    Rate = r.Value.Values.Single()
+                })
+                .OrderBy(r => r.Day);
         }
 
         private HttpClient CreateHttpClient()
