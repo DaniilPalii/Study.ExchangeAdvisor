@@ -8,22 +8,23 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 {
     public class ExchangeRateForecaster : IExchangeRateForecaster
     {
-        public IEnumerable<RateOnDay> Forecast(
-            IReadOnlyCollection<RateOnDay> source, 
+        public IEnumerable<Rate> Forecast(
+            IReadOnlyCollection<Rate> source, 
             DateTime forecastFinishDay,
             ForecastMethod forecastMethod)
         {
             if (source.Count < 2)
                 throw new ArgumentException("Source must has 2 or more values");
 
-            var lastSourceDay = source.Last().Day;
+            var lastSourceValue = source.Last();
+            var lastSourceDay = lastSourceValue.Day;
             if (lastSourceDay.Date >= forecastFinishDay.Date)
                 throw new ArgumentException("Prediction finish day must be later than last source day");
             
             var createInterpolation = GetInterpolationCreationFunction(forecastMethod);
             var interpolation = createInterpolation(
                 source.Select(r => ToDayNumber(r.Day)).ToArray(),
-                source.Select(r => r.Rate).ToArray());
+                source.Select(r => r.Value).ToArray());
             var lastSourceDayNumber = ToDayNumber(lastSourceDay);
 
             return Enumerable.Range(
@@ -31,15 +32,15 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                     count: Convert.ToInt32(ToDayNumber(forecastFinishDay) - lastSourceDayNumber))
                 .Select(n => (dayNumber: n, day: ToDay(n)))
                 .Where(d => IsNotWeekend(d.day))
-                .Select(d => new RateOnDay
-                {
-                    Day = d.day,
-                    Rate = interpolation.Interpolate(d.dayNumber)
-                });
+                .Select(d => new Rate(
+                    d.day,
+                    value: interpolation.Interpolate(d.dayNumber),
+                    lastSourceValue.BaseCurrency,
+                    lastSourceValue.ComparingCurrency));
         }
 
-        public IEnumerable<RateOnDay> ForecastOnKnownAndUnknownRange(
-            IReadOnlyCollection<RateOnDay> source, 
+        public IEnumerable<Rate> ForecastOnKnownAndUnknownRange(
+            IReadOnlyCollection<Rate> source, 
             DateTime forecastFinishDay,
             ForecastMethod forecastMethod)
         {
@@ -49,18 +50,19 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             var createInterpolation = GetInterpolationCreationFunction(forecastMethod);
             var interpolation = createInterpolation(
                 source.Select(r => ToDayNumber(r.Day)).ToArray(),
-                source.Select(r => r.Rate).ToArray());
+                source.Select(r => r.Value).ToArray());
             var firstSourceDayNumber = ToDayNumber(source.First().Day);
+            var lastSourceValue = source.Last();
 
             return Enumerable.Range(
                     start: Convert.ToInt32(firstSourceDayNumber),
                     count: Convert.ToInt32(ToDayNumber(forecastFinishDay) - firstSourceDayNumber))
                 .Select(n => (dayNumber: n, day: ToDay(n)))
-                .Select(d => new RateOnDay
-                {
-                    Day = d.day,
-                    Rate = interpolation.Interpolate(d.dayNumber)
-                });
+                .Select(d => new Rate(
+                    d.day,
+                    value: interpolation.Interpolate(d.dayNumber),
+                    lastSourceValue.BaseCurrency,
+                    lastSourceValue.ComparingCurrency));
         }
 
         private static Func<double[], double[], IInterpolation> GetInterpolationCreationFunction(ForecastMethod forecastMethod)

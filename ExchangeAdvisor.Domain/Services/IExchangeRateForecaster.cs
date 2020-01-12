@@ -7,13 +7,13 @@ namespace ExchangeAdvisor.Domain.Services
 {
     public interface IExchangeRateForecaster
     {
-        IEnumerable<RateOnDay> Forecast(
-            IReadOnlyCollection<RateOnDay> source,
+        IEnumerable<Rate> Forecast(
+            IReadOnlyCollection<Rate> source,
             DateTime forecastFinishDay,
             ForecastMethod forecastMethod);
 
-        IEnumerable<RateOnDay> ForecastOnKnownAndUnknownRange(
-            IReadOnlyCollection<RateOnDay> source, 
+        IEnumerable<Rate> ForecastOnKnownAndUnknownRange(
+            IReadOnlyCollection<Rate> source, 
             DateTime forecastFinishDay,
             ForecastMethod forecastMethod);
     }

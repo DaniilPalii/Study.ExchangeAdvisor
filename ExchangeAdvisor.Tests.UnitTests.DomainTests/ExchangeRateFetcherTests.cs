@@ -1,14 +1,15 @@
+using ExchangeAdvisor.Domain.Services.Implementation;
+using ExchangeAdvisor.Domain.Values;
+using FluentAssertions;
+using Moq;
+using Moq.Protected;
+using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using ExchangeAdvisor.Domain.Services.Implementation;
-using ExchangeAdvisor.Domain.Values;
-using Moq;
-using Moq.Protected;
-using NUnit.Framework;
 
 namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
 {
@@ -20,7 +21,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             httpMessageHandlerMock = new Mock<HttpMessageHandler>();
             MockResponseMessage();
-            
+
             httpClientFactoryMock = new Mock<IHttpClientFactory>();
             httpClientFactoryMock.Setup(m => m.CreateClient("Exchange Rates API"))
                 .Returns(new HttpClient(httpMessageHandlerMock.Object));
@@ -38,7 +39,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                     CurrencySymbol.USD,
                     CurrencySymbol.PLN)
                 .ConfigureAwait(false);
-            
+
             httpMessageHandlerMock.Protected()
                 .Verify(
                     "SendAsync",
@@ -59,15 +60,15 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             MockResponseMessage(
                 "{"
-                    + @"""rates"":{"
-                        + @"""2019-01-03"":{""PLN"":1.111},"
-                        + @"""2019-01-02"":{""PLN"":2.222}"
+                    + "\"rates\":{"
+                        + "\"2019-01-03\":{\"PLN\":1.111},"
+                        + "\"2019-01-02\":{\"PLN\":2.222}"
                     + "},"
-                    + @"""start_at"":""2019-01-01"","
-                    + @"""base"":""USD"","
-                    + @"""end_at"":""2019-01-03"""
+                    + "\"start_at\":\"2019-01-01\","
+                    + "\"base\":\"USD\","
+                    + "\"end_at\":\"2019-01-03\""
                 + "}");
-            
+
             var rateHistory = (await exchangeRateFetcher
                 .FetchRateHistoryAsync(
                     new DateTime(2019, 1, 1),
@@ -76,12 +77,42 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                     CurrencySymbol.PLN)
                 .ConfigureAwait(false))
                     .ToArray();
-            
-            Assert.That(rateHistory.Length, Is.EqualTo(2));
-            Assert.That(rateHistory[0].Day, Is.EqualTo(new DateTime(2019, 1, 3)));
-            Assert.That(rateHistory[0].Rate, Is.EqualTo(1.111));
-            Assert.That(rateHistory[1].Day, Is.EqualTo(new DateTime(2019, 1, 2)));
-            Assert.That(rateHistory[1].Rate, Is.EqualTo(2.222));
+
+            rateHistory.Should().BeEquivalentTo(new[]
+            {
+                new Rate(new DateTime(2019, 1, 2), 2.222, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 3), 1.111, CurrencySymbol.USD, CurrencySymbol.PLN)
+            });
+        }
+
+        [Test]
+        public async Task WhenFetchMultipleCurrenciesHistoryAsync_ShouldDeserializeResponseContentProperly()
+        {
+            MockResponseMessage(
+                "{"
+                    + "\"rates\":{"
+                        + "\"2019-01-03\":{\"PLN\":1.111,\"CAD\":1.222},"
+                        + "\"2019-01-02\":{\"PLN\":2.111,\"CAD\":2.222}"
+                    + "},"
+                    + "\"start_at\":\"2019-01-01\","
+                    + "\"base\":\"EUR\","
+                    + "\"end_at\":\"2019-01-03\""
+                + "}");
+
+            var rateHistory = (await exchangeRateFetcher
+                .FetchRateHistoryAsync(
+                    new DateTime(2019, 1, 1),
+                    new DateTime(2019, 1, 2))
+                .ConfigureAwait(false))
+                    .ToArray();
+
+            rateHistory.Should().BeEquivalentTo(new[]
+            {
+                new Rate(new DateTime(2019, 1, 2), 2.222, CurrencySymbol.EUR, CurrencySymbol.CAD),
+                new Rate(new DateTime(2019, 1, 2), 2.111, CurrencySymbol.EUR, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 3), 1.222, CurrencySymbol.EUR, CurrencySymbol.CAD),
+                new Rate(new DateTime(2019, 1, 3), 1.111, CurrencySymbol.EUR, CurrencySymbol.PLN)
+            });
         }
 
         private void MockResponseMessage(string messageContent = "")

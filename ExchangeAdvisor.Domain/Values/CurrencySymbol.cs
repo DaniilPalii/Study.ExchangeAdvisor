@@ -9,6 +9,7 @@
         CHF,
         CNY,
         CZK,
+        CYP,
         DKK,
         EUR,
         GBP,
@@ -19,6 +20,7 @@
         ILS,
         INR,
         ISK,
+        LTL,
         JPY,
         KRW,
         MXN,
@@ -35,5 +37,12 @@
         TRY,
         USD,
         ZAR,
+        TRL,
+        SKK,
+        LVL,
+        ROL,
+        SIT,
+        MTL,
+        EEK,
     }
 }

@@ -20,12 +20,12 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             var source = new[]
             {
-                new RateOnDay { Day = new DateTime(2019, 1, 1), Rate =  1 }, 
-                new RateOnDay { Day = new DateTime(2019, 1, 2), Rate =  2 },
-                new RateOnDay { Day = new DateTime(2019, 1, 3), Rate =  3 },
-                new RateOnDay { Day = new DateTime(2019, 1, 4), Rate =  4 },
-                new RateOnDay { Day = new DateTime(2019, 1, 5), Rate =  5 },
-                new RateOnDay { Day = new DateTime(2019, 1, 6), Rate =  6 },
+                new Rate(new DateTime(2019, 1, 1), value: 1, CurrencySymbol.USD, CurrencySymbol.PLN), 
+                new Rate(new DateTime(2019, 1, 2), value: 2, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 3), value: 3, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 4), value: 4, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 5), value: 5, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 6), value: 6, CurrencySymbol.USD, CurrencySymbol.PLN),
             };
             var forecastFinishDay = new DateTime(2019, 1, 8);
             
@@ -33,9 +33,9 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
             
             Assert.That(result.Length, Is.EqualTo(2));
             Assert.That(result[0].Day, Is.EqualTo(new DateTime(2019, 1, 7)));
-            Assert.That(result[0].Rate, Is.EqualTo(7).Within(ForecastTolerance));
+            Assert.That(result[0].Value, Is.EqualTo(7).Within(ForecastTolerance));
             Assert.That(result[1].Day, Is.EqualTo(new DateTime(2019, 1, 8)));
-            Assert.That(result[1].Rate, Is.EqualTo(8).Within(ForecastTolerance));
+            Assert.That(result[1].Value, Is.EqualTo(8).Within(ForecastTolerance));
         }
 
         [Test]
@@ -43,8 +43,8 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             var source = new[]
             {
-                new RateOnDay { Day = new DateTime(2019, 1, 1), Rate =  1 }, 
-                new RateOnDay { Day = new DateTime(2019, 1, 2), Rate =  2 },
+                new Rate(new DateTime(2019, 1, 1), value: 1, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 2), value: 2, CurrencySymbol.USD, CurrencySymbol.PLN),
             };
             var forecastFinishDay = new DateTime(2019, 1, 2);
             
@@ -60,7 +60,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             var source = new[]
             {
-                new RateOnDay { Day = new DateTime(2019, 1, 1), Rate =  1 },
+                new Rate(new DateTime(2019, 1, 1), value: 1, CurrencySymbol.USD, CurrencySymbol.PLN),
             };
             var forecastFinishDay = new DateTime(2019, 2, 2);
             

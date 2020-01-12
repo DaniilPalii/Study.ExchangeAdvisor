@@ -15,41 +15,81 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IEnumerable<RateOnDay>> FetchRateHistoryAsync(
+        public async Task<IEnumerable<Rate>> FetchRateHistoryAsync(
             DateTime startDate,
             DateTime endDate,
             CurrencySymbol baseCurrencySymbol,
             CurrencySymbol comparingCurrencySymbol)
         {
-            if (endDate < startDate) throw new ArgumentException("End date should be greater or equal to start date");
-            
+            CheckDates(startDate, endDate);
+
+            return await FetchRateHistoryAsync(
+                "history"
+                    + $"?start_at={startDate:yyyy-MM-dd}"
+                    + $"&end_at={endDate:yyyy-MM-dd}"
+                    + $"&base={baseCurrencySymbol}"
+                    + $"&symbols={comparingCurrencySymbol}");
+        }
+
+        public async Task<IEnumerable<Rate>> FetchRateHistoryAsync(DateTime startDate, DateTime endDate, CurrencySymbol baseCurrencySymbol)
+        {
+            CheckDates(startDate, endDate);
+
+            return await FetchRateHistoryAsync(
+                "history"
+                    + $"?start_at={startDate:yyyy-MM-dd}"
+                    + $"&end_at={endDate:yyyy-MM-dd}"
+                    + $"&base={baseCurrencySymbol}");
+        }
+
+        public async Task<IEnumerable<Rate>> FetchRateHistoryAsync(DateTime startDate, DateTime endDate)
+        {
+            CheckDates(startDate, endDate);
+
+            return await FetchRateHistoryAsync(
+                "history"
+                    + $"?start_at={startDate:yyyy-MM-dd}"
+                    + $"&end_at={endDate:yyyy-MM-dd}");
+        }
+
+        private static void CheckDates(DateTime startDate, DateTime endDate)
+        {
+            if (endDate < startDate)
+                throw new ArgumentException("End date should be greater or equal to start date");
+        }
+
+        private async Task<IEnumerable<Rate>> FetchRateHistoryAsync(string requestUri)
+        {
             var response = await CreateHttpClient()
-                .GetAsync(
-                    $"history" +
-                    $"?start_at={startDate:yyyy-MM-dd}" +
-                    $"&end_at={endDate:yyyy-MM-dd}" +
-                    $"&base={baseCurrencySymbol}" +
-                    $"&symbols={comparingCurrencySymbol}")
+                .GetAsync(requestUri)
                 .ConfigureAwait(false);
 
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException(
-                    $"Can't get data from https://api.exchangeratesapi.io. " +
-                    $"Response code: {response.StatusCode}" +
-                    $"Response message: {response.RequestMessage}");
+                    $"Can't get data from https://api.exchangeratesapi.io. "
+                        + $"response code: {response.StatusCode}, "
+                        + $"response message: {response.RequestMessage}.");
             }
             var responseContentString = await response.Content.ReadAsStringAsync()
                 .ConfigureAwait(false);
             var ratesHistoryResponse = JsonConvert.DeserializeObject<RatesHistoryResponse>(responseContentString);
-            
+
             return ratesHistoryResponse?.rates
-                ?.Select(r => new RateOnDay
+                ?.SelectMany(dayRatesByCurrency =>
                 {
-                    Day = r.Key,
-                    Rate = r.Value.Values.Single()
+                    var day = dayRatesByCurrency.Key;
+                    var ratesByCurrency = dayRatesByCurrency.Value;
+
+                    return ratesByCurrency.Select(rbc => new Rate(
+                        day,
+                        value: rbc.Value,
+                        baseCurrency: ratesHistoryResponse.@base.Value,
+                        comparingCurrency: rbc.Key));
                 })
-                .OrderBy(r => r.Day);
+                .OrderBy(r => r.Day)
+                .ThenBy(r => r.BaseCurrency)
+                .ThenBy(r => r.ComparingCurrency);
         }
 
         private HttpClient CreateHttpClient()
