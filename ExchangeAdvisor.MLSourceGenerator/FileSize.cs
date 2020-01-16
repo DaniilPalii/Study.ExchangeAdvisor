@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ExchangeAdvisor.MLSourceGenerator
+namespace ExchangeAdvisor.ML.SourceGenerator
 {
     public class FileSize
     {

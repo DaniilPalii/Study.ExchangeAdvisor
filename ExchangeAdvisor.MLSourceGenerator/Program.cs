@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 
-namespace ExchangeAdvisor.MLSourceGenerator
+namespace ExchangeAdvisor.ML.SourceGenerator
 {
     public class Program
     {
@@ -39,7 +39,7 @@ namespace ExchangeAdvisor.MLSourceGenerator
         {
             var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
-            var exchangeRateFetcher = new ExchangeRateFetcher(httpClientFactory);
+            var exchangeRateFetcher = new RateFetcher(httpClientFactory);
 
             return new FileWriter(exchangeRateFetcher);
         }

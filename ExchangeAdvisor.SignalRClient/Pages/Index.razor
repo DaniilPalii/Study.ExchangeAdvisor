@@ -1,10 +1,11 @@
 ﻿@page "/"
+@using ExchangeAdvisor.Domain
 @using ExchangeAdvisor.Domain.Services
 @using ExchangeAdvisor.Domain.Services.Implementation
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
-@inject IExchangeRateFetcher ExchangeRateFetcher
-@inject IExchangeRateForecaster ExchangeRateForecaster
+@inject IRateFetcher RateFetcher
+@inject IExtrapolationRateForecaster RateForecaster
 
 <h1>Exchange rate history</h1>
 <EjsChart>
@@ -27,10 +28,10 @@
 <EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" Width="180px" ShowClearButton="false"
                     MinDays="1" StrictMode="true">
 </EjsDateRangePicker>
-<EjsDropDownList @bind-Value="@BaseCurrency" TValue="string" Placeholder="Base currency" DataSource="@CurrencySymbols"
+<EjsDropDownList @bind-Value="@BaseCurrencyName" TValue="string" Placeholder="Base currency" DataSource="@CurrencySymbols"
                  Width="80px">
 </EjsDropDownList>
-<EjsDropDownList @bind-Value="@ComparingCurrency" TValue="string" Placeholder="Comparing currency"
+<EjsDropDownList @bind-Value="@ComparingCurrencyName" TValue="string" Placeholder="Comparing currency"
                  DataSource="@CurrencySymbols" Width="80px">
 </EjsDropDownList>
 <EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
@@ -40,8 +41,8 @@
     IReadOnlyCollection<object> forecastDayRates = Array.Empty<object>();
     DateTime? StartDate { get; set; } = DateTime.Today.AddDays(-30);
     DateTime? EndDate { get; set; } = DateTime.Today;
-    string? BaseCurrency { get; set; } = CurrencySymbol.EUR.ToString();
-    string? ComparingCurrency { get; set; } = CurrencySymbol.PLN.ToString();
+    string? BaseCurrencyName { get; set; } = CurrencySymbol.EUR.ToString();
+    string? ComparingCurrencyName { get; set; } = CurrencySymbol.PLN.ToString();
 
     IReadOnlyCollection<string> CurrencySymbols { get; } = Enum.GetNames(typeof(CurrencySymbol));
 
@@ -52,38 +53,38 @@
 
     private async Task RefreshRatesAsync()
     {
-        Enum.TryParse(BaseCurrency, out CurrencySymbol baseCurrencySymbol);
-        Enum.TryParse(ComparingCurrency, out CurrencySymbol comparingCurrencySymbol);
+        var baseCurrency = Converter.ToCurrencySymbol(BaseCurrencyName);
+        var comparingCurrency = Converter.ToCurrencySymbol(ComparingCurrencyName);
 
         if (StartDate > DateTime.Today) StartDate = DateTime.Today;
 
-//        if (EndDate > DateTime.Today)
-//        {
-//            var nonCastedHistoricalDayRates = (await ExchangeRateFetcher
-//                .FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrencySymbol, comparingCurrencySymbol))
-//                .ToArray();
-//            historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
-//                .ToArray();
-//            var nonCastedForecastDayRates = ExchangeRateForecaster.Forecast(nonCastedHistoricalDayRates, EndDate.Value);
-//            forecastDayRates = new[] { historicalDayRates.Last() }
-//                .Concat(nonCastedForecastDayRates.Cast<object>())
-//                .ToArray();
-//        }
-//        else
-//        {
-//            historicalDayRates = (await ExchangeRateFetcher
-//                .FetchRateHistoryAsync(StartDate.Value, EndDate.Value, baseCurrencySymbol, comparingCurrencySymbol))
-//                .Cast<object>()
-//                .ToArray();
-//            forecastDayRates = Array.Empty<object>();
-//        }
-        
-        var nonCastedHistoricalDayRates = (await ExchangeRateFetcher
-            .FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrencySymbol, comparingCurrencySymbol))
+        //        if (EndDate > DateTime.Today)
+        //        {
+        //            var nonCastedHistoricalDayRates = (await RateFetcher
+        //                .FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrency, comparingCurrency))
+        //                .ToArray();
+        //            historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
+        //                .ToArray();
+        //            var nonCastedForecastDayRates = RateForecaster.Forecast(nonCastedHistoricalDayRates, EndDate.Value);
+        //            forecastDayRates = new[] { historicalDayRates.Last() }
+        //                .Concat(nonCastedForecastDayRates.Cast<object>())
+        //                .ToArray();
+        //        }
+        //        else
+        //        {
+        //            historicalDayRates = (await RateFetcher
+        //                .FetchRateHistoryAsync(StartDate.Value, EndDate.Value, baseCurrency, comparingCurrency))
+        //                .Cast<object>()
+        //                .ToArray();
+        //            forecastDayRates = Array.Empty<object>();
+        //        }
+
+        var nonCastedHistoricalDayRates = (await RateFetcher
+            .FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrency, comparingCurrency))
             .ToArray();
         historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
             .ToArray();
-        forecastDayRates = ExchangeRateForecaster.ForecastOnKnownAndUnknownRange(
+        forecastDayRates = RateForecaster.ForecastOnKnownAndUnknownRange(
                 nonCastedHistoricalDayRates,
                 EndDate.Value,
                 ForecastMethod.BarycentricInterpolatePolynomialEquidistantSorted)
