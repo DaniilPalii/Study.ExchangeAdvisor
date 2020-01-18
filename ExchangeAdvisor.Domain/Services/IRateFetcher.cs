@@ -7,11 +7,11 @@ namespace ExchangeAdvisor.Domain.Services
 {
     public interface IRateFetcher
     {
-        Task<IEnumerable<Rate>> FetchRateHistoryAsync(
+        Task<IEnumerable<Rate>> FetchAsync(
             DateTime startDate,
             DateTime endDate,
-            CurrencySymbol baseCurrencySymbol,
-            CurrencySymbol comparingCurrencySymbol);
+            CurrencySymbol baseCurrency,
+            CurrencySymbol comparingCurrency);
 
         Task<IEnumerable<Rate>> FetchRateHistoryAsync(
             DateTime startDate,

@@ -33,7 +33,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         public async Task WhenFetchHistoryAsync_ShouldSendProperRequest()
         {
             await rateFetcher
-                .FetchRateHistoryAsync(
+                .FetchAsync(
                     new DateTime(2019, 1, 1),
                     new DateTime(2019, 1, 31),
                     CurrencySymbol.USD,
@@ -70,7 +70,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                 + "}");
 
             var rateHistory = (await rateFetcher
-                .FetchRateHistoryAsync(
+                .FetchAsync(
                     new DateTime(2019, 1, 1),
                     new DateTime(2019, 1, 2),
                     CurrencySymbol.USD,

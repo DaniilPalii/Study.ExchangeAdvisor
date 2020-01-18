@@ -15,7 +15,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IEnumerable<Rate>> FetchRateHistoryAsync(
+        public async Task<IEnumerable<Rate>> FetchAsync(
             DateTime startDate,
             DateTime endDate,
             CurrencySymbol baseCurrencySymbol,

@@ -4,7 +4,7 @@
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
 @inject IRateFetcher RateFetcher
-@inject IExtrapolationRateForecaster RateForecaster
+@inject IMLRateForecaster RateForecaster
 
 <h1>Exchange rate history</h1>
 <EjsChart>
@@ -55,37 +55,11 @@
         var baseCurrency = Converter.ToCurrencySymbol(BaseCurrencyName);
         var comparingCurrency = Converter.ToCurrencySymbol(ComparingCurrencyName);
 
-        //if (EndDate > DateTime.Today)
-        //{
-        //    var nonCastedHistoricalDayRates = (await RateFetcher
-        //        .FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrency, comparingCurrency))
-        //        .ToArray();
-        //    historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
-        //        .ToArray();
-        //    var nonCastedForecastDayRates = RateForecaster.Forecast(nonCastedHistoricalDayRates, EndDate.Value);
-        //    forecastDayRates = new[] { historicalDayRates.Last() }
-        //        .Concat(nonCastedForecastDayRates.Cast<object>())
-        //        .ToArray();
-        //}
-        //else
-        //{
-        historicalDayRates = (await RateFetcher
-            .FetchRateHistoryAsync(StartDate.Value, EndDate.Value, baseCurrency, comparingCurrency))
-            //.Cast<object>()
-            .ToArray();
-        forecastDayRates = Array.Empty<Rate>();
-        //}
-
-        //var nonCastedHistoricalDayRates = (await RateFetcher
-        //.FetchRateHistoryAsync(StartDate.Value, DateTime.Today, baseCurrency, comparingCurrency))
-        //.ToArray();
-        //historicalDayRates = nonCastedHistoricalDayRates.Cast<object>()
-        //    .ToArray();
-        //forecastDayRates = RateForecaster.ForecastOnKnownAndUnknownRange(
-        //        nonCastedHistoricalDayRates,
-        //        EndDate.Value,
-        //        ForecastMethod.BarycentricInterpolatePolynomialEquidistantSorted)
-        //    .Cast<object>()
-        //    .ToArray();
+        var rateFetchingTask = RateFetcher.FetchAsync(StartDate.Value, endDate: DateTime.Today, baseCurrency, comparingCurrency);
+        var rateForecastingTask = Task.Run(
+            () => RateForecaster.Forecast(baseCurrency, comparingCurrency, StartDate.Value, EndDate.Value)
+                .ToArray());
+        historicalDayRates = (await rateFetchingTask).ToArray();
+        forecastDayRates = await rateForecastingTask;
     }
 }

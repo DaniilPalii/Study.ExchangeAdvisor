@@ -26,7 +26,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             DateTime forecastStartDay,
             DateTime forecastFinishDay)
         {
-            for (var day = forecastStartDay; forecastStartDay < forecastFinishDay; day.AddDays(1))
+            for (var day = forecastStartDay; day < forecastFinishDay; day = day.AddDays(1))
             {
                 yield return new ModelInput
                 {
