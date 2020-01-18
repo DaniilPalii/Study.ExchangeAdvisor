@@ -37,17 +37,33 @@ namespace ExchangeAdvisor.ML.SourceGenerator
 
         private static string GenerateFileContent(IEnumerable<Rate> rates)
         {
-            var stringBuilder = new StringBuilder("Year\tMonth\tDay\tRate\tBase currency\tComparing currency\n");
+            return GenerateFileContent(
+                rates,
+                new (string featureName, Func<Rate, string> toFeatureValue)[]
+                {
+                    ("Year", r => r.Day.Year.ToString()),
+                    ("Month", r => r.Day.Month.ToString()),
+                    ("Day", r => r.Day.Day.ToString()),
+                    ("Absolute day number", r => (r.Day - DateTime.MinValue).TotalDays.ToString()),
+                    ("Day of week", r => r.Day.DayOfWeek.ToString()),
+                    ("Day of year", r => r.Day.DayOfYear.ToString()),
+                    ("Rate", r => r.Value.ToString(CultureInfo.InvariantCulture.NumberFormat)),
+                    ("Base currency", r => r.BaseCurrency.ToString()),
+                    ("Comparing currency", r => r.ComparingCurrency.ToString())
+                });
+        }
+
+        private static string GenerateFileContent(
+            IEnumerable<Rate> rates,
+            IReadOnlyCollection<(string featureName, Func<Rate, string> toFeatureValue)> features)
+        {
+            var stringBuilder = new StringBuilder()
+                .AppendJoin('\t', features.Select(f => f.featureName))
+                .Append(Environment.NewLine);
+
             foreach (var rate in rates)
-            {
-                stringBuilder
-                    .Append(rate.Day.Year).Append("\t")
-                    .Append(rate.Day.Month).Append("\t")
-                    .Append(rate.Day.Day).Append("\t")
-                    .Append(rate.Value.ToString(CultureInfo.InvariantCulture.NumberFormat)).Append("\t")
-                    .Append(rate.BaseCurrency).Append("\t")
-                    .Append(rate.ComparingCurrency).Append("\n");
-            }
+                stringBuilder.AppendJoin('\t', features.Select(f => f.toFeatureValue(rate)))
+                    .Append(Environment.NewLine);
 
             return stringBuilder.ToString();
         }

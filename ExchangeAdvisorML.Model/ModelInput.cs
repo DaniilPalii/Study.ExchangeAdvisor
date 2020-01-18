@@ -18,15 +18,27 @@ namespace ExchangeAdvisor.ML.Model
         public float Day { get; set; }
 
 
-        [ColumnName("Rate"), LoadColumn(3)]
+        [ColumnName("Absolute day number"), LoadColumn(3)]
+        public float AbsoluteDayNumber { get; set; }
+
+
+        [ColumnName("Day of week"), LoadColumn(4)]
+        public string DayOfWeek { get; set; }
+
+
+        [ColumnName("Day of year"), LoadColumn(5)]
+        public float DayOfTear { get; set; }
+
+
+        [ColumnName("Rate"), LoadColumn(6)]
         public float Rate { get; set; }
 
 
-        [ColumnName("Base currency"), LoadColumn(4)]
+        [ColumnName("Base currency"), LoadColumn(7)]
         public string BaseCurrency { get; set; }
 
 
-        [ColumnName("Comparing currency"), LoadColumn(5)]
+        [ColumnName("Comparing currency"), LoadColumn(8)]
         public string ComparingCurrency { get; set; }
     }
 }

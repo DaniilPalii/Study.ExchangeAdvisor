@@ -34,7 +34,10 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                     ComparingCurrency = comparingCurrency.ToString(),
                     Day = day.Day,
                     Month = day.Month,
-                    Year = day.Year
+                    Year = day.Year,
+                    AbsoluteDayNumber = (float)(day - DateTime.MinValue).TotalDays,
+                    DayOfTear = day.DayOfYear,
+                    DayOfWeek = day.DayOfWeek.ToString()
                 };
             }
         }
