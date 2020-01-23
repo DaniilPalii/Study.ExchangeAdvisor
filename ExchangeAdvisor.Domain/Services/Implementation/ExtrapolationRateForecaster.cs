@@ -9,7 +9,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
     public class ExtrapolationRateForecaster : IExtrapolationRateForecaster
     {
         public IEnumerable<Rate> Forecast(
-            IReadOnlyCollection<Rate> source, 
+            IReadOnlyCollection<Rate> source,
             DateTime forecastFinishDay,
             ForecastMethod forecastMethod)
         {
@@ -20,11 +20,11 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             var lastSourceDay = lastSourceValue.Day;
             if (lastSourceDay.Date >= forecastFinishDay.Date)
                 throw new ArgumentException("Prediction finish day must be later than last source day");
-            
+
             var createInterpolation = GetInterpolationCreationFunction(forecastMethod);
             var interpolation = createInterpolation(
                 source.Select(r => ToDayNumber(r.Day)).ToArray(),
-                source.Select(r => r.Value).ToArray());
+                source.Select(r => r.Value).Cast<double>().ToArray());
             var lastSourceDayNumber = ToDayNumber(lastSourceDay);
 
             return Enumerable.Range(
@@ -34,13 +34,13 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                 .Where(d => IsNotWeekend(d.day))
                 .Select(d => new Rate(
                     d.day,
-                    value: interpolation.Interpolate(d.dayNumber),
+                    value: Convert.ToSingle(interpolation.Interpolate(d.dayNumber)),
                     lastSourceValue.BaseCurrency,
                     lastSourceValue.ComparingCurrency));
         }
 
         public IEnumerable<Rate> ForecastOnKnownAndUnknownRange(
-            IReadOnlyCollection<Rate> source, 
+            IReadOnlyCollection<Rate> source,
             DateTime forecastFinishDay,
             ForecastMethod forecastMethod)
         {
@@ -50,7 +50,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             var createInterpolation = GetInterpolationCreationFunction(forecastMethod);
             var interpolation = createInterpolation(
                 source.Select(r => ToDayNumber(r.Day)).ToArray(),
-                source.Select(r => r.Value).ToArray());
+                source.Select(r => r.Value).Cast<double>().ToArray());
             var firstSourceDayNumber = ToDayNumber(source.First().Day);
             var lastSourceValue = source.Last();
 
@@ -60,7 +60,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                 .Select(n => (dayNumber: n, day: ToDay(n)))
                 .Select(d => new Rate(
                     d.day,
-                    value: interpolation.Interpolate(d.dayNumber),
+                    value: Convert.ToSingle(interpolation.Interpolate(d.dayNumber)),
                     lastSourceValue.BaseCurrency,
                     lastSourceValue.ComparingCurrency));
         }
@@ -96,7 +96,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
         private static bool IsNotWeekend(DateTime day)
         {
-            return day.DayOfWeek != DayOfWeek.Sunday 
+            return day.DayOfWeek != DayOfWeek.Sunday
                 && day.DayOfWeek != DayOfWeek.Saturday;
         }
     }

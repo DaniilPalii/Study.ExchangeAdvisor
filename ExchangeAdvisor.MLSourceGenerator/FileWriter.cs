@@ -1,5 +1,6 @@
 ﻿using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
+using ExchangeAdvisor.ML.Model;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,22 +18,18 @@ namespace ExchangeAdvisor.ML.SourceGenerator
             this.rateFetcher = rateFetcher;
         }
 
-        public async Task SaveAllExchangeRatesToTsvAsync(string filePath)
+        public void SaveAllExchangeRatesToTsv(string filePath)
         {
-            var rates = await FetchRates().ConfigureAwait(false);
+            var rates = FetchRates();
             var fileContent = GenerateFileContent(rates);
 
             File.WriteAllText(filePath, fileContent);
         }
 
-        private async Task<IEnumerable<Rate>> FetchRates()
+        private IEnumerable<Rate> FetchRates()
         {
-            var euroBasedRatesFetchingTask = rateFetcher.FetchRateHistoryAsync(DateTime.MinValue, DateTime.Today, CurrencySymbol.EUR);
-            var dollarBasedRatesFetchingTask = rateFetcher.FetchRateHistoryAsync(DateTime.MinValue, DateTime.Today, CurrencySymbol.USD);
-            var euroBasedRates = await euroBasedRatesFetchingTask.ConfigureAwait(false);
-            var dollarBasedRates = await dollarBasedRatesFetchingTask.ConfigureAwait(false);
-
-            return euroBasedRates.Concat(dollarBasedRates);
+            return WaitForAll(
+                rateFetcher.FetchAsync(DateTime.MinValue, DateTime.Today, CurrencySymbol.EUR, CurrencySymbol.PLN));
         }
 
         private static string GenerateFileContent(IEnumerable<Rate> rates)
@@ -44,8 +41,8 @@ namespace ExchangeAdvisor.ML.SourceGenerator
                     ("Year", r => r.Day.Year.ToString()),
                     ("Month", r => r.Day.Month.ToString()),
                     ("Day", r => r.Day.Day.ToString()),
-                    ("Absolute day number", r => (r.Day - DateTime.MinValue).TotalDays.ToString()),
-                    ("Day of week", r => r.Day.DayOfWeek.ToString()),
+                    ("Absolute day number", r => ModelInput.GetAbsoluteDayNumber(r.Day).ToString()),
+                    ("Day of week", r => ModelInput.GetDayOfWeekNumber(r.Day).ToString()),
                     ("Day of year", r => r.Day.DayOfYear.ToString()),
                     ("Rate", r => r.Value.ToString(CultureInfo.InvariantCulture.NumberFormat)),
                     ("Base currency", r => r.BaseCurrency.ToString()),
@@ -66,6 +63,13 @@ namespace ExchangeAdvisor.ML.SourceGenerator
                     .Append(Environment.NewLine);
 
             return stringBuilder.ToString();
+        }
+
+        private static IEnumerable<T> WaitForAll<T>(params Task<IEnumerable<T>>[] tasks)
+        {
+            Task.WaitAll(tasks);
+
+            return tasks.SelectMany(t => t.Result);
         }
 
         private readonly IRateFetcher rateFetcher;

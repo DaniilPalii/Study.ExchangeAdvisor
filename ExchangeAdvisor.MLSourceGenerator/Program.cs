@@ -18,8 +18,7 @@ namespace ExchangeAdvisor.ML.SourceGenerator
 
             Console.Write("Generate file for Exchange Advisor neural network learning...");
             CreateFileWriter()
-                .SaveAllExchangeRatesToTsvAsync(generatingFilePath)
-                .GetAwaiter().GetResult();
+                .SaveAllExchangeRatesToTsv(generatingFilePath);
             Console.WriteLine("Done");
 
             Console.WriteLine($"File path: \"{generatingFilePath}\"");

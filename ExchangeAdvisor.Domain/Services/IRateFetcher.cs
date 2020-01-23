@@ -13,12 +13,12 @@ namespace ExchangeAdvisor.Domain.Services
             CurrencySymbol baseCurrency,
             CurrencySymbol comparingCurrency);
 
-        Task<IEnumerable<Rate>> FetchRateHistoryAsync(
+        Task<IEnumerable<Rate>> FetchAsync(
             DateTime startDate,
             DateTime endDate,
             CurrencySymbol baseCurrencySymbol);
 
-        Task<IEnumerable<Rate>> FetchRateHistoryAsync(
+        Task<IEnumerable<Rate>> FetchAsync(
             DateTime startDate,
             DateTime endDate);
     }

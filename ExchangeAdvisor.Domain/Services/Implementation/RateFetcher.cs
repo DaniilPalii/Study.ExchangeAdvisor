@@ -31,7 +31,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                     + $"&symbols={comparingCurrencySymbol}");
         }
 
-        public async Task<IEnumerable<Rate>> FetchRateHistoryAsync(DateTime startDate, DateTime endDate, CurrencySymbol baseCurrencySymbol)
+        public async Task<IEnumerable<Rate>> FetchAsync(DateTime startDate, DateTime endDate, CurrencySymbol baseCurrencySymbol)
         {
             CheckDates(startDate, endDate);
 
@@ -42,7 +42,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                     + $"&base={baseCurrencySymbol}");
         }
 
-        public async Task<IEnumerable<Rate>> FetchRateHistoryAsync(DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<Rate>> FetchAsync(DateTime startDate, DateTime endDate)
         {
             CheckDates(startDate, endDate);
 
@@ -102,7 +102,8 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
         private class RatesHistoryResponse
         {
-            public IDictionary<DateTime, IDictionary<CurrencySymbol, double>> rates { get; set; }
+            // TODO: use atrybutes to six names
+            public IDictionary<DateTime, IDictionary<CurrencySymbol, float>> rates { get; set; }
             public DateTime? start_at { get; set; }
             public DateTime? end_at { get; set; }
             public CurrencySymbol? @base { get; set; }

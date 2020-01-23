@@ -80,8 +80,8 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
 
             rateHistory.Should().BeEquivalentTo(new[]
             {
-                new Rate(new DateTime(2019, 1, 2), 2.222, CurrencySymbol.USD, CurrencySymbol.PLN),
-                new Rate(new DateTime(2019, 1, 3), 1.111, CurrencySymbol.USD, CurrencySymbol.PLN)
+                new Rate(new DateTime(2019, 1, 2), 2.222f, CurrencySymbol.USD, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 3), 1.111f, CurrencySymbol.USD, CurrencySymbol.PLN)
             });
         }
 
@@ -100,7 +100,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                 + "}");
 
             var rateHistory = (await rateFetcher
-                .FetchRateHistoryAsync(
+                .FetchAsync(
                     new DateTime(2019, 1, 1),
                     new DateTime(2019, 1, 2))
                 .ConfigureAwait(false))
@@ -108,10 +108,10 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
 
             rateHistory.Should().BeEquivalentTo(new[]
             {
-                new Rate(new DateTime(2019, 1, 2), 2.222, CurrencySymbol.EUR, CurrencySymbol.CAD),
-                new Rate(new DateTime(2019, 1, 2), 2.111, CurrencySymbol.EUR, CurrencySymbol.PLN),
-                new Rate(new DateTime(2019, 1, 3), 1.222, CurrencySymbol.EUR, CurrencySymbol.CAD),
-                new Rate(new DateTime(2019, 1, 3), 1.111, CurrencySymbol.EUR, CurrencySymbol.PLN)
+                new Rate(new DateTime(2019, 1, 2), 2.222f, CurrencySymbol.EUR, CurrencySymbol.CAD),
+                new Rate(new DateTime(2019, 1, 2), 2.111f, CurrencySymbol.EUR, CurrencySymbol.PLN),
+                new Rate(new DateTime(2019, 1, 3), 1.222f, CurrencySymbol.EUR, CurrencySymbol.CAD),
+                new Rate(new DateTime(2019, 1, 3), 1.111f, CurrencySymbol.EUR, CurrencySymbol.PLN)
             });
         }
 

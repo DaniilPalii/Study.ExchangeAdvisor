@@ -6,13 +6,13 @@ namespace ExchangeAdvisor.Domain.Values
     {
         public DateTime Day { get; }
 
-        public double Value { get; }
+        public float Value { get; }
 
         public CurrencySymbol BaseCurrency { get; }
 
         public CurrencySymbol ComparingCurrency { get; }
 
-        public Rate(DateTime day, double value, CurrencySymbol baseCurrency, CurrencySymbol comparingCurrency)
+        public Rate(DateTime day, float value, CurrencySymbol baseCurrency, CurrencySymbol comparingCurrency)
         {
             Day = day;
             Value = value;

@@ -28,17 +28,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
         {
             for (var day = forecastStartDay; day < forecastFinishDay; day = day.AddDays(1))
             {
-                yield return new ModelInput
-                {
-                    BaseCurrency = baseCurrency.ToString(),
-                    ComparingCurrency = comparingCurrency.ToString(),
-                    Day = day.Day,
-                    Month = day.Month,
-                    Year = day.Year,
-                    AbsoluteDayNumber = (float)(day - DateTime.MinValue).TotalDays,
-                    DayOfTear = day.DayOfYear,
-                    DayOfWeek = day.DayOfWeek.ToString()
-                };
+                yield return new ModelInput(day, baseCurrency.ToString(), comparingCurrency.ToString());
             }
         }
 
