@@ -4,7 +4,7 @@
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
 @inject IRateFetcher RateFetcher
-@inject IMLRateForecaster RateForecaster
+@inject IRateForecaster RateForecaster
 
 <h1>Exchange rate history</h1>
 <EjsChart>
@@ -35,7 +35,8 @@
 </EjsDropDownList>
 <EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
 
-@code {
+@code
+{
     IReadOnlyCollection<Rate> historicalDayRates = Array.Empty<Rate>();
     IReadOnlyCollection<Rate> forecastDayRates = Array.Empty<Rate>();
     DateTime? StartDate { get; set; } = DateTime.Today.AddDays(-30);

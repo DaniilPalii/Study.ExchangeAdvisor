@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ExchangeAdvisor.Domain.Services
 {
-    public interface IMLRateForecaster
+    public interface IRateForecaster
     {
         IEnumerable<Rate> Forecast(
             CurrencySymbol baseCurrency,

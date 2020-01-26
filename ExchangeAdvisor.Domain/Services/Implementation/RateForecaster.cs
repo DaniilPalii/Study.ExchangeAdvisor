@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace ExchangeAdvisor.Domain.Services.Implementation
 {
-    public class MLRateForecaster : IMLRateForecaster
+    public class RateForecaster : IRateForecaster
     {
         public IEnumerable<Rate> Forecast(
             CurrencySymbol baseCurrency,
