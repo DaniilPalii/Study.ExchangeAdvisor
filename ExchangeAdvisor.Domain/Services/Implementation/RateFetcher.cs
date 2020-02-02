@@ -60,9 +60,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
         private async Task<IEnumerable<Rate>> FetchRateHistoryAsync(string requestUri)
         {
-            var response = await CreateHttpClient()
-                .GetAsync(requestUri)
-                .ConfigureAwait(false);
+            var response = await CreateHttpClient().GetAsync(requestUri);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -71,8 +69,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                         + $"response code: {response.StatusCode}, "
                         + $"response message: {response.RequestMessage}.");
             }
-            var responseContentString = await response.Content.ReadAsStringAsync()
-                .ConfigureAwait(false);
+            var responseContentString = await response.Content.ReadAsStringAsync();
             var ratesHistoryResponse = JsonConvert.DeserializeObject<RatesHistoryResponse>(responseContentString);
 
             return ratesHistoryResponse?.rates
@@ -102,7 +99,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
         private class RatesHistoryResponse
         {
-            // TODO: use atrybutes to six names
+            // TODO: use atrybutes to fix names
             public IDictionary<DateTime, IDictionary<CurrencySymbol, float>> rates { get; set; }
             public DateTime? start_at { get; set; }
             public DateTime? end_at { get; set; }
