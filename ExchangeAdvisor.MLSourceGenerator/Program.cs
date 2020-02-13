@@ -38,7 +38,7 @@ namespace ExchangeAdvisor.ML.SourceGenerator
         {
             var serviceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
             var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
-            var exchangeRateFetcher = new RateFetcher(httpClientFactory);
+            var exchangeRateFetcher = new RateWebFetcher(httpClientFactory);
 
             return new FileWriter(exchangeRateFetcher);
         }

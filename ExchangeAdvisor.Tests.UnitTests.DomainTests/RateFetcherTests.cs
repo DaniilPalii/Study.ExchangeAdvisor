@@ -26,7 +26,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
             httpClientFactoryMock.Setup(m => m.CreateClient("Exchange Rates API"))
                 .Returns(new HttpClient(httpMessageHandlerMock.Object));
 
-            rateFetcher = new RateFetcher(httpClientFactoryMock.Object);
+            rateFetcher = new RateWebFetcher(httpClientFactoryMock.Object);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                 .Verifiable();
         }
 
-        private RateFetcher rateFetcher;
+        private RateWebFetcher rateFetcher;
         private Mock<IHttpClientFactory> httpClientFactoryMock;
         private Mock<HttpMessageHandler> httpMessageHandlerMock;
     }

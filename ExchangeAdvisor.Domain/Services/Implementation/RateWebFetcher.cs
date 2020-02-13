@@ -8,9 +8,9 @@ using Newtonsoft.Json;
 
 namespace ExchangeAdvisor.Domain.Services.Implementation
 {
-    public class RateFetcher : IRateFetcher
+    public class RateWebFetcher : IRateFetcher
     {
-        public RateFetcher(IHttpClientFactory httpClientFactory)
+        public RateWebFetcher(IHttpClientFactory httpClientFactory)
         {
             this.httpClientFactory = httpClientFactory;
         }
