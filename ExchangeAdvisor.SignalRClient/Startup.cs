@@ -1,3 +1,5 @@
+using ExchangeAdvisor.DB.Repositories;
+using ExchangeAdvisor.DB.Repositories.Implementations;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
 using Microsoft.AspNetCore.Builder;
@@ -22,8 +24,9 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddHttpClient();
-            services.AddScoped<IRateFetcher, RateFetcher>();
+            services.AddScoped<IRateFetcher, RateWebFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
