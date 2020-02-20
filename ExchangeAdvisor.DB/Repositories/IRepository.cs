@@ -1,24 +1,23 @@
 ﻿using ExchangeAdvisor.DB.Entities.Base;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ExchangeAdvisor.DB.Repositories
 {
     public interface IRepository<TEntity> where TEntity : EntityBase
     {
-        Task<TEntity> GetAsync(int id);
+        TEntity Get(int id);
 
         ICollection<TEntity> GetBy(Func<TEntity, bool> predicate);
 
         ICollection<TEntity> GetAll();
 
-        Task<TEntity> UpdateAsync(TEntity entity);
+        TEntity Update(TEntity entity);
 
-        Task UpdateAsync(IEnumerable<TEntity> entities);
+        void Update(IEnumerable<TEntity> entities);
 
-        Task RemoveAsync(TEntity entity);
+        void Remove(TEntity entity);
 
-        Task RemoveAsync(IEnumerable<TEntity> entities);
+        void Remove(IEnumerable<TEntity> entities);
     }
 }

@@ -3,7 +3,7 @@
 @using ExchangeAdvisor.Domain.Services
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
-@inject IRateFetcher RateFetcher
+@inject IRateService RateService
 @inject IRateForecaster RateForecaster
 
 <h1>Exchange rate history</h1>
@@ -50,7 +50,7 @@
     private DateTime? EndDate { get; set; } = DateTime.Today;
     private string BaseCurrencyName { get; set; } = CurrencySymbol.EUR.ToString();
     private string ComparingCurrencyName { get; set; } = CurrencySymbol.PLN.ToString();
-    private bool ShouldShowMarkers { get; set; } = true;
+    private bool ShouldShowMarkers { get; set; } = false;
     private IReadOnlyCollection<string> CurrencySymbols { get; } = Enum.GetNames(typeof(CurrencySymbol));
 
     protected override async Task OnInitializedAsync()
@@ -63,7 +63,7 @@
         var baseCurrency = Converter.ToCurrencySymbol(BaseCurrencyName);
         var comparingCurrency = Converter.ToCurrencySymbol(ComparingCurrencyName);
 
-        var fetchingRatesTask = RateFetcher.FetchAsync(StartDate.Value, DateTime.Today, baseCurrency, comparingCurrency);
+        var fetchingRatesTask = RateService.FetchHistoricalRatesAsync(baseCurrency, comparingCurrency);
         ForecastRates = RateForecaster.Forecast(baseCurrency, comparingCurrency, StartDate.Value, EndDate.Value).ToArray();
         HistoricalRates = (await fetchingRatesTask).ToArray();
     }

@@ -13,7 +13,7 @@ namespace ExchangeAdvisor.ML.SourceGenerator
 {
     public class FileWriter
     {
-        public FileWriter(IRateFetcher rateFetcher)
+        public FileWriter(IRateWebFetcher rateFetcher)
         {
             this.rateFetcher = rateFetcher;
         }
@@ -72,6 +72,6 @@ namespace ExchangeAdvisor.ML.SourceGenerator
             return tasks.SelectMany(t => t.Result);
         }
 
-        private readonly IRateFetcher rateFetcher;
+        private readonly IRateWebFetcher rateFetcher;
     }
 }

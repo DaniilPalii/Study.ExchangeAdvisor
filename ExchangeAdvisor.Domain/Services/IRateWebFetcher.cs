@@ -5,7 +5,7 @@ using ExchangeAdvisor.Domain.Values;
 
 namespace ExchangeAdvisor.Domain.Services
 {
-    public interface IRateFetcher
+    public interface IRateWebFetcher
     {
         Task<IEnumerable<Rate>> FetchAsync(
             DateTime startDate,

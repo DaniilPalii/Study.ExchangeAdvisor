@@ -24,9 +24,10 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddHttpClient();
-            services.AddScoped<IRateFetcher, RateWebFetcher>();
+            services.AddScoped<IRateWebFetcher, RateWebFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IRateService, RateService>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

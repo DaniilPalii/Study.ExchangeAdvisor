@@ -4,15 +4,14 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ExchangeAdvisor.DB.Repositories.Implementations
 {
-    public abstract class Repository<TEntity> : IRepository<TEntity> where TEntity : EntityBase
+    public class Repository<TEntity> : IRepository<TEntity> where TEntity : EntityBase
     {
-        public async Task<TEntity> GetAsync(int id)
+        public TEntity Get(int id)
         {
-            return await PerformInDbAsync(set => set.FindAsync(id));
+            return PerformInDb(set => set.Find(id));
         }
 
         public ICollection<TEntity> GetBy(Func<TEntity, bool> predicate)
@@ -28,62 +27,49 @@ namespace ExchangeAdvisor.DB.Repositories.Implementations
             return PerformInDb(set => set.AsEnumerable().ToArray());
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        public TEntity Update(TEntity entity)
         {
-            return await PerformInDbWithSavingAsync(set => set.Update(entity).Entity);
+            return PerformInDbWithSaving(set => set.Update(entity).Entity);
         }
 
-        public async Task UpdateAsync(IEnumerable<TEntity> entities)
+        public void Update(IEnumerable<TEntity> entities)
         {
-            await PerformInDbWithSavingAsync(set => set.UpdateRange(entities));
+            PerformInDbWithSaving(set => set.UpdateRange(entities));
         }
 
-        public async Task RemoveAsync(TEntity entity)
+        public void Remove(TEntity entity)
         {
-            await PerformInDbWithSavingAsync(set => set.Remove(entity));
+            PerformInDbWithSaving(set => set.Remove(entity));
         }
 
-        public async Task RemoveAsync(IEnumerable<TEntity> entities)
+        public void Remove(IEnumerable<TEntity> entities)
         {
-            await PerformInDbWithSavingAsync(set => set.RemoveRange(entities));
+            PerformInDbWithSaving(set => set.RemoveRange(entities));
         }
 
         private static TResult PerformInDb<TResult>(Func<DbSet<TEntity>, TResult> action)
         {
-            using (var db = new DatabaseContext())
-            {
-                return action(db.Set<TEntity>());
-            }
+            using var db = new DatabaseContext();
+
+            return action(db.Set<TEntity>());
         }
 
-        private static async Task<TResult> PerformInDbAsync<TResult>(Func<DbSet<TEntity>, ValueTask<TResult>> asyncAction)
+        private static TResult PerformInDbWithSaving<TResult>(Func<DbSet<TEntity>, TResult> action)
         {
-            using (var db = new DatabaseContext())
-            {
-                return await asyncAction(db.Set<TEntity>());
-            }
+            using var db = new DatabaseContext();
+            var result = action(db.Set<TEntity>());
+
+            db.SaveChanges();
+
+            return result;
         }
 
-        private static async Task<TResult> PerformInDbWithSavingAsync<TResult>(Func<DbSet<TEntity>, TResult> action)
+        private static void PerformInDbWithSaving(Action<DbSet<TEntity>> action)
         {
-            using (var db = new DatabaseContext())
-            {
-                var result = action(db.Set<TEntity>());
+            using var db = new DatabaseContext();
+            action(db.Set<TEntity>());
 
-                await db.SaveChangesAsync();
-
-                return result;
-            }
-        }
-
-        private static async Task PerformInDbWithSavingAsync(Action<DbSet<TEntity>> action)
-        {
-            using (var db = new DatabaseContext())
-            {
-                action(db.Set<TEntity>());
-
-                await db.SaveChangesAsync();
-            }
+            db.SaveChanges();
         }
     }
 }
