@@ -8,16 +8,23 @@ namespace ExchangeAdvisor.Domain.Values
 
         public float Value { get; }
 
-        public CurrencySymbol BaseCurrency { get; }
+        public CurrencyPair CurrencyPair { get; }
 
-        public CurrencySymbol ComparingCurrency { get; }
-
-        public Rate(DateTime day, float value, CurrencySymbol baseCurrency, CurrencySymbol comparingCurrency)
+        public Rate(DateTime day, float value, CurrencyPair currencyPair)
         {
             Day = day;
             Value = value;
-            BaseCurrency = baseCurrency;
-            ComparingCurrency = comparingCurrency;
+            CurrencyPair = currencyPair;
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Rate rate
+                && Day == rate.Day
+                && Value == rate.Value
+                && CurrencyPair == rate.CurrencyPair;
+        }
+
+        public override int GetHashCode() => (Day, Value, CurrencyPair).GetHashCode();
     }
 }

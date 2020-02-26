@@ -1,7 +1,7 @@
 using ExchangeAdvisor.DB.Repositories;
-using ExchangeAdvisor.DB.Repositories.Implementations;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
+using ExchangeAdvisor.ML.Model;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +26,7 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddHttpClient();
             services.AddScoped<IRateWebFetcher, RateWebFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
-            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            services.AddScoped<IHistoricalRatesRepository, HistoricalRatesRepository>();
             services.AddScoped<IRateService, RateService>();
         }
 

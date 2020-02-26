@@ -1,10 +1,9 @@
 ﻿@page "/"
-@using ExchangeAdvisor.Domain
+@using ExchangeAdvisor.Domain.Helpers
 @using ExchangeAdvisor.Domain.Services
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
 @inject IRateService RateService
-@inject IRateForecaster RateForecaster
 
 <h1>Exchange rate history</h1>
 <EjsChart>
@@ -30,10 +29,10 @@
     <EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" Width="180px" ShowClearButton="false"
                         MinDays="1" StrictMode="true">
     </EjsDateRangePicker>
-    <EjsDropDownList @bind-Value="@BaseCurrencyName" DataSource="@CurrencySymbols" TValue="string"
+    <EjsDropDownList @bind-Value="@BaseCurrencyName" DataSource="@Currencies" TValue="string"
                      Placeholder="Base currency" Width="80px">
     </EjsDropDownList>
-    <EjsDropDownList @bind-Value="@ComparingCurrencyName" DataSource="@CurrencySymbols" TValue="string"
+    <EjsDropDownList @bind-Value="@ComparingCurrencyName" DataSource="@Currencies" TValue="string"
                      Placeholder="Comparing currency" Width="80px">
     </EjsDropDownList>
     <EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
@@ -48,10 +47,10 @@
     private IReadOnlyCollection<Rate> ForecastRates { get; set; } = Array.Empty<Rate>();
     private DateTime? StartDate { get; set; } = DateTime.Today.AddDays(-30);
     private DateTime? EndDate { get; set; } = DateTime.Today;
-    private string BaseCurrencyName { get; set; } = CurrencySymbol.EUR.ToString();
-    private string ComparingCurrencyName { get; set; } = CurrencySymbol.PLN.ToString();
+    private string BaseCurrencyName { get; set; } = Domain.Values.Currency.EUR.ToString();
+    private string ComparingCurrencyName { get; set; } = Domain.Values.Currency.PLN.ToString();
     private bool ShouldShowMarkers { get; set; } = false;
-    private IReadOnlyCollection<string> CurrencySymbols { get; } = Enum.GetNames(typeof(CurrencySymbol));
+    private IReadOnlyCollection<string> Currencies { get; } = Enum.GetNames(typeof(Currency));
 
     protected override async Task OnInitializedAsync()
     {
@@ -60,11 +59,17 @@
 
     private async Task RefreshRatesAsync()
     {
-        var baseCurrency = Converter.ToCurrencySymbol(BaseCurrencyName);
-        var comparingCurrency = Converter.ToCurrencySymbol(ComparingCurrencyName);
+        var baseCurrency = Converter.ToCurrency(BaseCurrencyName);
+        var comparingCurrency = Converter.ToCurrency(ComparingCurrencyName);
 
-        var fetchingRatesTask = RateService.FetchHistoricalRatesAsync(baseCurrency, comparingCurrency);
-        ForecastRates = RateForecaster.Forecast(baseCurrency, comparingCurrency, StartDate.Value, EndDate.Value).ToArray();
-        HistoricalRates = (await fetchingRatesTask).ToArray();
+        var rates = (await RateService.GetAsync(
+                new Domain.Values.DateRange(StartDate.Value, EndDate.Value),
+                new CurrencyPair(baseCurrency, comparingCurrency)))
+            .ToArray();
+
+        var today = DateTime.Today;
+
+        HistoricalRates = rates.TakeWhile(r => r.Day <= today).ToArray();
+        ForecastRates = rates.Skip(HistoricalRates.Count - 1).ToArray();
     }
 }

@@ -2,5 +2,5 @@
 
 namespace ExchangeAdvisor.DB.Entities
 {
-    public class HistoricalRate : RateBase { }
+    internal class HistoricalRate : RateBase { }
 }

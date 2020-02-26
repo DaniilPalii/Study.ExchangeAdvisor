@@ -1,15 +1,10 @@
-﻿using ExchangeAdvisor.Domain.Values;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using ExchangeAdvisor.Domain.Values;
 
 namespace ExchangeAdvisor.Domain.Services
 {
     public interface IRateForecaster
     {
-        IEnumerable<Rate> Forecast(
-            CurrencySymbol baseCurrency,
-            CurrencySymbol comparingCurrency,
-            DateTime forecastStartDay,
-            DateTime forecastFinishDay);
+        IEnumerable<Rate> Forecast(DateRange dateRange, CurrencyPair currencyPair);
     }
 }

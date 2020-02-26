@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -22,6 +23,7 @@ namespace ExchangeAdvisor.ML.SourceGenerator
         }
 
         [DllImport("Shlwapi.dll", CharSet = CharSet.Auto)]
+        [SuppressMessage("Globalization", "CA2101:Specify marshaling for P/Invoke string arguments", Justification = "Auto-generated code")]
         private static extern long StrFormatByteSize(
             long fileSize,
             [MarshalAs(UnmanagedType.LPTStr)] StringBuilder buffer,

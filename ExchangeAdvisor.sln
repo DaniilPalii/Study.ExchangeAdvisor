@@ -9,13 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.Tests.UnitT
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.SignalRClient", "ExchangeAdvisor.SignalRClient\ExchangeAdvisor.SignalRClient.csproj", "{B7DDE354-FEB5-45B8-8540-68BB545EA857}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.ML.SourceGenerator", "ExchangeAdvisor.MLSourceGenerator\ExchangeAdvisor.ML.SourceGenerator.csproj", "{FACE66F1-4924-4ADA-B797-0877425D196D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.ML.SourceGenerator", "ML\ExchangeAdvisor.ML.SourceGenerator\ExchangeAdvisor.ML.SourceGenerator.csproj", "{FACE66F1-4924-4ADA-B797-0877425D196D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.ML.Model", "ExchangeAdvisorML.Model\ExchangeAdvisor.ML.Model.csproj", "{04BBCB1A-D8F8-4446-8585-1130B262DC4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.ML.Model", "ML\ExchangeAdvisor.ML.Model\ExchangeAdvisor.ML.Model.csproj", "{04BBCB1A-D8F8-4446-8585-1130B262DC4F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ML", "ML", "{4829DED5-5056-4399-869A-8512A0506D86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.DB", "ExchangeAdvisor.DB\ExchangeAdvisor.DB.csproj", "{B516A67F-53F9-4C3C-B0FB-6AE3E0871166}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.DB", "ExchangeAdvisor.DB\ExchangeAdvisor.DB.csproj", "{B516A67F-53F9-4C3C-B0FB-6AE3E0871166}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

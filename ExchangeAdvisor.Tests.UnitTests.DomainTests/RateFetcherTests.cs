@@ -34,10 +34,10 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             await rateFetcher
                 .FetchAsync(
-                    new DateTime(2019, 1, 1),
-                    new DateTime(2019, 1, 31),
-                    CurrencySymbol.USD,
-                    CurrencySymbol.PLN)
+                    new DateRange(
+                        new DateTime(2019, 1, 1),
+                        new DateTime(2019, 1, 31)),
+                    new CurrencyPair(Currency.USD, Currency.PLN))
                 .ConfigureAwait(false);
 
             httpMessageHandlerMock.Protected()
@@ -71,17 +71,17 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
 
             var rateHistory = (await rateFetcher
                 .FetchAsync(
-                    new DateTime(2019, 1, 1),
-                    new DateTime(2019, 1, 2),
-                    CurrencySymbol.USD,
-                    CurrencySymbol.PLN)
+                    new DateRange(
+                        new DateTime(2019, 1, 1),
+                        new DateTime(2019, 1, 2)),
+                    new CurrencyPair(Currency.USD, Currency.PLN))
                 .ConfigureAwait(false))
                     .ToArray();
 
             rateHistory.Should().BeEquivalentTo(new[]
             {
-                new Rate(new DateTime(2019, 1, 2), 2.222f, CurrencySymbol.USD, CurrencySymbol.PLN),
-                new Rate(new DateTime(2019, 1, 3), 1.111f, CurrencySymbol.USD, CurrencySymbol.PLN)
+                new Rate(new DateTime(2019, 1, 2), 2.222f, new CurrencyPair(Currency.USD, Currency.PLN)),
+                new Rate(new DateTime(2019, 1, 3), 1.111f, new CurrencyPair(Currency.USD, Currency.PLN))
             });
         }
 
@@ -101,17 +101,18 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
 
             var rateHistory = (await rateFetcher
                 .FetchAsync(
-                    new DateTime(2019, 1, 1),
-                    new DateTime(2019, 1, 2))
+                    new DateRange(
+                        new DateTime(2019, 1, 1),
+                        new DateTime(2019, 1, 2)))
                 .ConfigureAwait(false))
                     .ToArray();
 
             rateHistory.Should().BeEquivalentTo(new[]
             {
-                new Rate(new DateTime(2019, 1, 2), 2.222f, CurrencySymbol.EUR, CurrencySymbol.CAD),
-                new Rate(new DateTime(2019, 1, 2), 2.111f, CurrencySymbol.EUR, CurrencySymbol.PLN),
-                new Rate(new DateTime(2019, 1, 3), 1.222f, CurrencySymbol.EUR, CurrencySymbol.CAD),
-                new Rate(new DateTime(2019, 1, 3), 1.111f, CurrencySymbol.EUR, CurrencySymbol.PLN)
+                new Rate(new DateTime(2019, 1, 2), 2.222f, new CurrencyPair(Currency.EUR, Currency.CAD)),
+                new Rate(new DateTime(2019, 1, 2), 2.111f, new CurrencyPair(Currency.EUR, Currency.PLN)),
+                new Rate(new DateTime(2019, 1, 3), 1.222f, new CurrencyPair(Currency.EUR, Currency.CAD)),
+                new Rate(new DateTime(2019, 1, 3), 1.111f, new CurrencyPair(Currency.EUR, Currency.PLN))
             });
         }
 

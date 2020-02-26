@@ -1,7 +1,4 @@
-﻿using ExchangeAdvisor.DB.Entities;
-using ExchangeAdvisor.DB.Repositories;
-using ExchangeAdvisor.Domain.Values;
-using Mapster;
+﻿using ExchangeAdvisor.Domain.Values;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,58 +11,66 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
         public RateService(
             IRateWebFetcher rateWebFetcher,
             IRateForecaster rateForecaster,
-            IRepository<HistoricalRate> historicalRatesRepository)
+            IHistoricalRatesRepository historicalRatesRepository)
         {
             this.rateWebFetcher = rateWebFetcher;
             this.rateForecaster = rateForecaster;
             this.historicalRatesRepository = historicalRatesRepository;
         }
 
-        public async Task<IEnumerable<Rate>> FetchHistoricalRatesAsync(
-            CurrencySymbol baseCurrency,
-            CurrencySymbol comparingCurrency)
+        public async Task<IEnumerable<Rate>> GetAsync(DateRange dateRange, CurrencyPair currencyPair)
         {
-            var ratesFromRepository = historicalRatesRepository.GetAll();
-
-            if (ratesFromRepository.Count == 0)
+            IEnumerable<Rate> rates;
+            if (dateRange.End <= DateTime.Today)
             {
-                ratesFromRepository = await RefreshRepositoryRatesWithWeb(
-                    baseCurrency,
-                    comparingCurrency,
-                    startDate: DateTime.MinValue);
+                rates = await GetFromFromWebWithCachingInRepository(dateRange, currencyPair);
             }
-            else if (ratesFromRepository.Max(r => r.Day) < DateTime.Today)
+            else if (dateRange.Start > DateTime.Today)
             {
-                ratesFromRepository = await RefreshRepositoryRatesWithWeb(
-                    baseCurrency,
-                    comparingCurrency,
-                    startDate: DateTime.Today);
+                rates = rateForecaster.Forecast(dateRange, currencyPair);
+            }
+            else
+            {
+                var historicalRates = await GetFromFromWebWithCachingInRepository(
+                    new DateRange(dateRange.Start, DateTime.Today),
+                    currencyPair);
+                var forecastedRates = rateForecaster.Forecast(
+                    new DateRange(DateTime.Today.AddDays(1), dateRange.End),
+                    currencyPair);
+
+                rates = historicalRates.Concat(forecastedRates);
             }
 
-            return ratesFromRepository.Adapt<IEnumerable<Rate>>()
-                .OrderBy(r => r.Day)
-                .ThenBy(r => r.BaseCurrency)
-                .ThenBy(r => r.ComparingCurrency);
+            return rates.OrderBy(r => r.Day);
         }
 
-        private async Task<ICollection<HistoricalRate>> RefreshRepositoryRatesWithWeb(
-            CurrencySymbol baseCurrency,
-            CurrencySymbol comparingCurrency,
-            DateTime startDate)
+        private async Task<ICollection<Rate>> GetFromFromWebWithCachingInRepository(DateRange dateRange, CurrencyPair currencyPair)
         {
-            var ratesFromWeb = await rateWebFetcher.FetchAsync(
-                startDate: startDate,
-                endDate: DateTime.Today,
-                baseCurrency,
-                comparingCurrency);
+            var ratesFromRepository = historicalRatesRepository.Get(dateRange, currencyPair)
+                .ToArray();
 
-            historicalRatesRepository.Update(ratesFromWeb.Adapt<IEnumerable<HistoricalRate>>());
+            if (ratesFromRepository.Length > 0
+                && ratesFromRepository.Max(r => r.Day) >= dateRange.End)
+            {
+                return ratesFromRepository;
+            }
 
-            return historicalRatesRepository.GetAll();
+            await RefreshRepositoryRatesWithWebAsync(currencyPair);
+
+            return historicalRatesRepository.Get(dateRange, currencyPair)
+                .ToArray();
+        }
+
+        private async Task RefreshRepositoryRatesWithWebAsync(CurrencyPair currencyPair)
+        {
+            var dateRange = new DateRange(DateTime.MinValue, DateTime.Today);
+            var ratesFromWeb = await rateWebFetcher.FetchAsync(dateRange, currencyPair);
+
+            historicalRatesRepository.Update(ratesFromWeb);
         }
 
         private readonly IRateWebFetcher rateWebFetcher;
         private readonly IRateForecaster rateForecaster;
-        private readonly IRepository<HistoricalRate> historicalRatesRepository;
+        private readonly IHistoricalRatesRepository historicalRatesRepository;
     }
 }

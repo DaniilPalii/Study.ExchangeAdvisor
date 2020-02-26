@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ExchangeAdvisor.DB\ExchangeAdvisor.DB.csproj" />
     <ProjectReference Include="..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
+    <ProjectReference Include="..\ML\ExchangeAdvisor.ML.Model\ExchangeAdvisor.ML.Model.csproj" />
   </ItemGroup>
 
   <ItemGroup>

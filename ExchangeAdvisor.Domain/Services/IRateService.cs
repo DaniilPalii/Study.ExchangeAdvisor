@@ -6,8 +6,6 @@ namespace ExchangeAdvisor.Domain.Services
 {
     public interface IRateService
     {
-        Task<IEnumerable<Rate>> FetchHistoricalRatesAsync(
-            CurrencySymbol baseCurrency,
-            CurrencySymbol comparingCurrency);
+        Task<IEnumerable<Rate>> GetAsync(DateRange dateRange, CurrencyPair currencyPair);
     }
 }

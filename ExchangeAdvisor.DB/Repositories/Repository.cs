@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ExchangeAdvisor.DB.Repositories.Implementations
+namespace ExchangeAdvisor.DB.Repositories
 {
-    public class Repository<TEntity> : IRepository<TEntity> where TEntity : EntityBase
+    internal class Repository<TEntity> where TEntity : EntityBase
     {
         public TEntity Get(int id)
         {

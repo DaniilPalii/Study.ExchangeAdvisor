@@ -1,6 +1,6 @@
 ﻿namespace ExchangeAdvisor.Domain.Values
 {
-    public enum CurrencySymbol
+    public enum Currency
     {
         AUD,
         BGN,

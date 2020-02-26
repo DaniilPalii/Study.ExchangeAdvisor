@@ -2,11 +2,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Net.Http;
 
 namespace ExchangeAdvisor.ML.SourceGenerator
 {
+    [SuppressMessage("Design", "RCS1102:Make class static.", Justification = "Framework requirement")]
+    [SuppressMessage("Design", "CA1052:Static holder types should be Static or NotInheritable", Justification = "Framework requirement")]
     public class Program
     {
         public static void Main(string[] args)

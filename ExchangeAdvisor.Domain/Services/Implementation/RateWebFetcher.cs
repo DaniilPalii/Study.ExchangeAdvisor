@@ -15,47 +15,31 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             this.httpClientFactory = httpClientFactory;
         }
 
-        public async Task<IEnumerable<Rate>> FetchAsync(
-            DateTime startDate,
-            DateTime endDate,
-            CurrencySymbol baseCurrencySymbol,
-            CurrencySymbol comparingCurrencySymbol)
+        public async Task<IEnumerable<Rate>> FetchAsync(DateRange dateRange, CurrencyPair currencyPair)
         {
-            CheckDates(startDate, endDate);
-
             return await FetchRateHistoryAsync(
                 "history"
-                    + $"?start_at={startDate:yyyy-MM-dd}"
-                    + $"&end_at={endDate:yyyy-MM-dd}"
-                    + $"&base={baseCurrencySymbol}"
-                    + $"&symbols={comparingCurrencySymbol}");
+                    + $"?start_at={dateRange.Start:yyyy-MM-dd}"
+                    + $"&end_at={dateRange.End:yyyy-MM-dd}"
+                    + $"&base={currencyPair.Base}"
+                    + $"&symbols={currencyPair.Comparing}");
         }
 
-        public async Task<IEnumerable<Rate>> FetchAsync(DateTime startDate, DateTime endDate, CurrencySymbol baseCurrencySymbol)
+        public async Task<IEnumerable<Rate>> FetchAsync(DateRange dateRange, Currency baseCurrency)
         {
-            CheckDates(startDate, endDate);
-
             return await FetchRateHistoryAsync(
                 "history"
-                    + $"?start_at={startDate:yyyy-MM-dd}"
-                    + $"&end_at={endDate:yyyy-MM-dd}"
-                    + $"&base={baseCurrencySymbol}");
+                    + $"?start_at={dateRange.Start:yyyy-MM-dd}"
+                    + $"&end_at={dateRange.End:yyyy-MM-dd}"
+                    + $"&base={baseCurrency}");
         }
 
-        public async Task<IEnumerable<Rate>> FetchAsync(DateTime startDate, DateTime endDate)
+        public async Task<IEnumerable<Rate>> FetchAsync(DateRange dateRange)
         {
-            CheckDates(startDate, endDate);
-
             return await FetchRateHistoryAsync(
                 "history"
-                    + $"?start_at={startDate:yyyy-MM-dd}"
-                    + $"&end_at={endDate:yyyy-MM-dd}");
-        }
-
-        private static void CheckDates(DateTime startDate, DateTime endDate)
-        {
-            if (endDate < startDate)
-                throw new ArgumentException("End date should be greater or equal to start date");
+                    + $"?start_at={dateRange.Start:yyyy-MM-dd}"
+                    + $"&end_at={dateRange.End:yyyy-MM-dd}");
         }
 
         private async Task<IEnumerable<Rate>> FetchRateHistoryAsync(string requestUri)
@@ -80,13 +64,14 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
                     return ratesByCurrency.Select(rbc => new Rate(
                         day,
-                        value: rbc.Value,
-                        baseCurrency: ratesHistoryResponse.@base.Value,
-                        comparingCurrency: rbc.Key));
+                        rbc.Value,
+                        new CurrencyPair(
+                            @base: ratesHistoryResponse.@base.Value,
+                            comparing: rbc.Key)));
                 })
                 .OrderBy(r => r.Day)
-                .ThenBy(r => r.BaseCurrency)
-                .ThenBy(r => r.ComparingCurrency);
+                .ThenBy(r => r.CurrencyPair.Base)
+                .ThenBy(r => r.CurrencyPair.Comparing);
         }
 
         private HttpClient CreateHttpClient()
@@ -100,10 +85,10 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
         private class RatesHistoryResponse
         {
             // TODO: use atrybutes to fix names
-            public IDictionary<DateTime, IDictionary<CurrencySymbol, float>> rates { get; set; }
+            public IDictionary<DateTime, IDictionary<Currency, float>> rates { get; set; }
             public DateTime? start_at { get; set; }
             public DateTime? end_at { get; set; }
-            public CurrencySymbol? @base { get; set; }
+            public Currency? @base { get; set; }
         }
 
         private readonly IHttpClientFactory httpClientFactory;

@@ -1,13 +1,13 @@
-﻿using ExchangeAdvisor.Domain.Services;
-using ExchangeAdvisor.Domain.Values;
-using ExchangeAdvisor.ML.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ExchangeAdvisor.Domain.Services;
+using ExchangeAdvisor.Domain.Values;
+using ExchangeAdvisor.ML.Model;
 
 namespace ExchangeAdvisor.ML.SourceGenerator
 {
@@ -29,7 +29,11 @@ namespace ExchangeAdvisor.ML.SourceGenerator
         private IEnumerable<Rate> FetchRates()
         {
             return WaitForAll(
-                rateFetcher.FetchAsync(DateTime.MinValue, DateTime.Today, CurrencySymbol.EUR, CurrencySymbol.PLN));
+                rateFetcher.FetchAsync(
+                    new DateRange(
+                        DateTime.MinValue,
+                        DateTime.Today),
+                    new CurrencyPair(Currency.EUR, Currency.PLN)));
         }
 
         private static string GenerateFileContent(IEnumerable<Rate> rates)
@@ -45,8 +49,8 @@ namespace ExchangeAdvisor.ML.SourceGenerator
                     ("Day of week", r => ModelInput.GetDayOfWeekNumber(r.Day).ToString()),
                     ("Day of year", r => r.Day.DayOfYear.ToString()),
                     ("Rate", r => r.Value.ToString(CultureInfo.InvariantCulture.NumberFormat)),
-                    ("Base currency", r => r.BaseCurrency.ToString()),
-                    ("Comparing currency", r => r.ComparingCurrency.ToString())
+                    ("Base currency", r => r.CurrencyPair.Base.ToString()),
+                    ("Comparing currency", r => r.CurrencyPair.Comparing.ToString())
                 });
         }
 
