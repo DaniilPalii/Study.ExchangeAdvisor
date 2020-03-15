@@ -1,7 +1,7 @@
 using ExchangeAdvisor.DB.Repositories;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
-using ExchangeAdvisor.ML.Model;
+using ExchangeAdvisor.ML;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;

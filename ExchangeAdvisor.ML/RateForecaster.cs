@@ -1,20 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Helpers;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
+using ExchangeAdvisor.ML.Internal;
 
-namespace ExchangeAdvisor.ML.Model
+namespace ExchangeAdvisor.ML
 {
     public class RateForecaster : IRateForecaster
     {
-        public IEnumerable<Rate> Forecast(DateRange dateRange, CurrencyPair currencyPair)
+        public async Task<IEnumerable<Rate>> ForecastAsync(DateRange dateRange, CurrencyPair currencyPair)
         {
+            var modelBuildingTask = Task.Run(() => new ModelBuilder().Build());
             var inputs = dateRange.Days.Select(d => new ModelInput(d, currencyPair));
+            var model = await modelBuildingTask;
 
-            return ConsumeModel.Predict(inputs)
-                .Select(ToRate);
+            return model.Predict(inputs).Select(ToRate);
         }
 
         private static Rate ToRate((ModelInput, ModelOutput) inputOutputModelsPair)

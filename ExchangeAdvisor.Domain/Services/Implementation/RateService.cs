@@ -27,17 +27,19 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             }
             else if (dateRange.Start > DateTime.Today)
             {
-                rates = rateForecaster.Forecast(dateRange, currencyPair);
+                rates = await rateForecaster.ForecastAsync(dateRange, currencyPair);
             }
             else
             {
-                var historicalRates = await GetFromFromWebWithCachingInRepository(
+                var gettingFromRepositoryTask = GetFromFromWebWithCachingInRepository(
                     new DateRange(dateRange.Start, DateTime.Today),
                     currencyPair);
-                var forecastedRates = rateForecaster.Forecast(
+                var forecastingTask = rateForecaster.ForecastAsync(
                     new DateRange(DateTime.Today.AddDays(1), dateRange.End),
                     currencyPair);
 
+                var historicalRates = await gettingFromRepositoryTask;
+                var forecastedRates = await forecastingTask;
                 rates = historicalRates.Concat(forecastedRates);
             }
 

@@ -8,13 +8,7 @@
     <PackageReference Include="Microsoft.ML.FastTree" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="MLModel.zip">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
   </ItemGroup>
 
 </Project>

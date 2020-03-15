@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Values;
 
 namespace ExchangeAdvisor.Domain.Services
 {
     public interface IRateForecaster
     {
-        IEnumerable<Rate> Forecast(DateRange dateRange, CurrencyPair currencyPair);
+        Task<IEnumerable<Rate>> ForecastAsync(DateRange dateRange, CurrencyPair currencyPair);
     }
 }
