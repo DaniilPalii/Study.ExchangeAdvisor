@@ -25,25 +25,17 @@ namespace ExchangeAdvisor.ML.Internal
 
         private IEstimator<ITransformer> BuildTrainingPipeline()
         {
-            var dataProcessPipeline = mlContext.Transforms.Categorical.OneHotEncoding(
+            var dataProcessPipeline = mlContext.Transforms.Concatenate(
+                "Features",
                 new[]
                 {
-                    new InputOutputColumnPair("Base currency", "Base currency"),
-                    new InputOutputColumnPair("Comparing currency", "Comparing currency")
-                })
-                .Append(mlContext.Transforms.Concatenate(
-                    "Features",
-                    new[]
-                    {
-                        "Base currency",
-                        "Comparing currency",
-                        "Year",
-                        "Month",
-                        "Day",
-                        "Absolute day number",
-                        "Day of week",
-                        "Day of year"
-                    }));
+                    "Year",
+                    "Month",
+                    "Day",
+                    "Absolute day number",
+                    "Day of week",
+                    "Day of year"
+                });
             var trainer = mlContext.Regression.Trainers.FastTree(labelColumnName: "Rate", featureColumnName: "Features");
 
             return dataProcessPipeline.Append(trainer);

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using ExchangeAdvisor.Domain.Values;
 using Microsoft.ML.Data;
 
 namespace ExchangeAdvisor.ML.Internal
@@ -28,13 +27,7 @@ namespace ExchangeAdvisor.ML.Internal
         [ColumnName("Rate"), LoadColumn(6)]
         public float Rate { get; set; }
 
-        [ColumnName("Base currency"), LoadColumn(7)]
-        public string BaseCurrency { get; set; }
-
-        [ColumnName("Comparing currency"), LoadColumn(8)]
-        public string ComparingCurrency { get; set; }
-
-        public ModelInput(DateTime rateDay, CurrencyPair currencyPair)
+        public ModelInput(DateTime rateDay)
         {
             Year = rateDay.Year;
             Month = rateDay.Month;
@@ -42,25 +35,17 @@ namespace ExchangeAdvisor.ML.Internal
             AbsoluteDayNumber = GetAbsoluteDayNumber(rateDay);
             DayOfWeek = GetDayOfWeekNumber(rateDay);
             DayOfYear = rateDay.DayOfYear;
-            BaseCurrency = currencyPair.Base.ToString();
-            ComparingCurrency = currencyPair.Comparing.ToString();
         }
 
-        public ModelInput(DateTime rateDay, CurrencyPair currencyPair, float rate)
-            : this(rateDay, currencyPair)
+        public ModelInput(DateTime rateDay, float rate)
+            : this(rateDay)
         {
             Rate = rate;
         }
 
-        public static int GetDayOfWeekNumber(DateTime day)
-        {
-            return DayOfWeekNumbers[day.DayOfWeek];
-        }
+        public static int GetDayOfWeekNumber(DateTime day) => DayOfWeekNumbers[day.DayOfWeek];
 
-        public static float GetAbsoluteDayNumber(DateTime rateDay)
-        {
-            return (float)(rateDay - DateTime.MinValue).TotalDays;
-        }
+        public static float GetAbsoluteDayNumber(DateTime rateDay) => (float)(rateDay - DateTime.MinValue).TotalDays;
 
         private static readonly IReadOnlyDictionary<DayOfWeek, int> DayOfWeekNumbers
             = new Dictionary<DayOfWeek, int>
