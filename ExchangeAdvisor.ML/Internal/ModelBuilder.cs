@@ -41,6 +41,6 @@ namespace ExchangeAdvisor.ML.Internal
             return dataProcessPipeline.Append(trainer);
         }
 
-        private readonly MLContext mlContext = new MLContext(seed: 1);
+        private readonly MLContext mlContext = new MLContext();
     }
 }
