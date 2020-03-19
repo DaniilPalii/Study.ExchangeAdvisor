@@ -1,4 +1,3 @@
-using System;
 using ExchangeAdvisor.DB.Repositories;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
@@ -17,10 +16,8 @@ namespace ExchangeAdvisor.SignalRClient
     {
         public Startup(IConfiguration configuration)
         {
-            Configuration = configuration;
+            configurationReader = new ConfigurationReader(configuration);
         }
-
-        public IConfiguration Configuration { get; }
 
         public void ConfigureServices(IServiceCollection services)
         {
@@ -37,7 +34,7 @@ namespace ExchangeAdvisor.SignalRClient
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment environment)
         {
-            RegisterSyncfusionLicenseKey();
+            SyncfusionLicenseProvider.RegisterLicense(configurationReader.SyncfusionLicenseKey);
 
             if (environment.IsDevelopment())
             {
@@ -61,8 +58,6 @@ namespace ExchangeAdvisor.SignalRClient
             });
         }
 
-        private void RegisterSyncfusionLicenseKey()
-            => SyncfusionLicenseProvider.RegisterLicense(
-                Configuration.GetValue<string>("SyncfusionLicenseKey"));
+        private readonly ConfigurationReader configurationReader;
     }
 }
