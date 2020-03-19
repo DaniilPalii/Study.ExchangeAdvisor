@@ -1,3 +1,4 @@
+using System;
 using ExchangeAdvisor.DB.Repositories;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
@@ -34,30 +35,34 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddScoped<IRateService, RateService>();
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment environment)
         {
-            SyncfusionLicenseProvider.RegisterLicense("MjI0NjcwQDMxMzcyZTM0MmUzMG51eUxNa3JXYWJHb0dkYXVvU3pXNTRVbENkNGVBc2FGNERDa1Y4LzkyZ0E9"); // TODO: provide key with configuration
+            RegisterSyncfusionLicenseKey();
 
-            if (env.IsDevelopment())
+            if (environment.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                appBuilder.UseDeveloperExceptionPage();
             }
             else
             {
-                app.UseExceptionHandler("/Error");
-                app.UseHsts();
+                appBuilder.UseExceptionHandler("/Error");
+                appBuilder.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseStaticFiles();
+            appBuilder.UseHttpsRedirection();
+            appBuilder.UseStaticFiles();
 
-            app.UseRouting();
+            appBuilder.UseRouting();
 
-            app.UseEndpoints(endpoints =>
+            appBuilder.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
         }
+
+        private void RegisterSyncfusionLicenseKey()
+            => SyncfusionLicenseProvider.RegisterLicense(
+                Configuration.GetValue<string>("SyncfusionLicenseKey"));
     }
 }
