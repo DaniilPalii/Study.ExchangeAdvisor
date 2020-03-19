@@ -1,13 +1,19 @@
 ﻿@page "/"
+
 @using ExchangeAdvisor.Domain.Helpers
 @using ExchangeAdvisor.Domain.Services
 @using ExchangeAdvisor.Domain.Values
 @using Syncfusion.EJ2.Blazor.Charts
+@using Syncfusion.EJ2.Blazor.Spinner
+
+@using ChartValueType = Syncfusion.EJ2.Blazor.Charts.ValueType
+@using DomainDateRange = Domain.Values.DateRange
+
 @inject IRateService RateService
 
-<h1>Exchange rate history</h1>
-<EjsChart>
-    <ChartPrimaryXAxis Title="Day" ValueType="Syncfusion.EJ2.Blazor.Charts.ValueType.DateTime"></ChartPrimaryXAxis>
+<h1>Exchange rate history and prediction</h1>
+<EjsChart ID="@ChartId">
+    <ChartPrimaryXAxis Title="Day" ValueType="ChartValueType.DateTime"></ChartPrimaryXAxis>
     <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
     <ChartSeriesCollection>
         <ChartSeries DataSource="@HistoricalRates" Name="History" Type="@ChartSeriesType.Line"
@@ -25,6 +31,7 @@
     </ChartZoomSettings>
     <ChartLegendSettings Visible="true"></ChartLegendSettings>
 </EjsChart>
+<EjsSpinner @ref="ChartLoader" Target="@ChartLoaderTargetCssSelector"></EjsSpinner>
 <div>
     <EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" Width="180px" ShowClearButton="false"
                         MinDays="1" StrictMode="true">
@@ -47,31 +54,55 @@
 {
     private IReadOnlyCollection<Rate> HistoricalRates { get; set; } = Array.Empty<Rate>();
     private IReadOnlyCollection<Rate> ForecastRates { get; set; } = Array.Empty<Rate>();
-    private DateTime? StartDate { get; set; } = DateTime.Today.AddMonths(-2);
-    private DateTime? EndDate { get; set; } = DateTime.Today.AddMonths(2);
-    private string BaseCurrencyName { get; set; } = Domain.Values.Currency.EUR.ToString();
-    private string ComparingCurrencyName { get; set; } = Domain.Values.Currency.PLN.ToString();
+    private DateTime? StartDate { get; set; } = DateTime.Today.AddMonths(-3);
+    private DateTime? EndDate { get; set; } = DateTime.Today.AddMonths(3);
+    private string BaseCurrencyName { get; set; } = Currency.EUR.ToString();
+    private string ComparingCurrencyName { get; set; } = Currency.PLN.ToString();
     private bool ShouldShowMarkers { get; set; } = false;
-    private IReadOnlyCollection<string> Currencies { get; } = Enum.GetNames(typeof(Currency));
+    private EjsSpinner ChartLoader { get; set; }
+
+    private static readonly IReadOnlyCollection<string> Currencies = Enum.GetNames(typeof(Currency));
+    private static readonly string ChartLoaderTargetCssSelector = $"#{ChartId}";
+    private const string ChartId = "chart";
 
     protected override async Task OnInitializedAsync()
     {
+        ChartLoader = new EjsSpinner();
+
         await RefreshRatesAsync();
     }
 
     private async Task RefreshRatesAsync()
     {
-        var baseCurrency = Converter.ToCurrency(BaseCurrencyName);
-        var comparingCurrency = Converter.ToCurrency(ComparingCurrencyName);
+        HistoricalRates = Array.Empty<Rate>();
+        ForecastRates = Array.Empty<Rate>();
 
-        var rates = (await RateService.GetAsync(
-                Domain.Values.DateRange.From(StartDate.Value).Until(EndDate.Value),
-                new CurrencyPair(baseCurrency, comparingCurrency)))
-            .ToArray();
+        ChartLoader.ShowSpinner(ChartLoaderTargetCssSelector);
 
-        var today = DateTime.Today;
+        try
+        {
+            var baseCurrency = Converter.ToCurrency(BaseCurrencyName);
+            var comparingCurrency = Converter.ToCurrency(ComparingCurrencyName);
 
-        HistoricalRates = rates.TakeWhile(r => r.Day <= today).ToArray();
-        ForecastRates = rates.Skip(HistoricalRates.Count - 1).ToArray();
+            var rates = (await RateService.GetAsync(
+                    DomainDateRange.From(StartDate.Value).Until(EndDate.Value),
+                    new CurrencyPair(baseCurrency, comparingCurrency)))
+                .ToArray();
+
+            var today = DateTime.Today;
+
+            HistoricalRates = rates.TakeWhile(r => r.Day <= today).ToArray();
+            ForecastRates = rates.Skip(HistoricalRates.Count - 1).ToArray();
+        }
+        finally
+        {
+            ChartLoader.HideSpinner(ChartLoaderTargetCssSelector);
+        }
     }
 }
+
+<style>
+    #@ChartId .e-spinner-pane {
+        transform: translateY(-42px);
+    }
+</style>
