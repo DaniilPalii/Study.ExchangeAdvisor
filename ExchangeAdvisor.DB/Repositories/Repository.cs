@@ -9,6 +9,11 @@ namespace ExchangeAdvisor.DB.Repositories
 {
     internal class Repository<TEntity> where TEntity : EntityBase
     {
+        public Repository(string connectionString)
+        {
+            this.connectionString = connectionString;
+        }
+
         public TEntity Get(int id)
         {
             return PerformInDb(set => set.Find(id));
@@ -47,16 +52,16 @@ namespace ExchangeAdvisor.DB.Repositories
             PerformInDbWithSaving(set => set.RemoveRange(entities));
         }
 
-        private static TResult PerformInDb<TResult>(Func<DbSet<TEntity>, TResult> action)
+        private TResult PerformInDb<TResult>(Func<DbSet<TEntity>, TResult> action)
         {
-            using var db = new DatabaseContext();
+            using var db = CreateDatabaseContext();
 
             return action(db.Set<TEntity>());
         }
 
-        private static TResult PerformInDbWithSaving<TResult>(Func<DbSet<TEntity>, TResult> action)
+        private TResult PerformInDbWithSaving<TResult>(Func<DbSet<TEntity>, TResult> action)
         {
-            using var db = new DatabaseContext();
+            using var db = CreateDatabaseContext();
             var result = action(db.Set<TEntity>());
 
             db.SaveChanges();
@@ -64,12 +69,16 @@ namespace ExchangeAdvisor.DB.Repositories
             return result;
         }
 
-        private static void PerformInDbWithSaving(Action<DbSet<TEntity>> action)
+        private void PerformInDbWithSaving(Action<DbSet<TEntity>> action)
         {
-            using var db = new DatabaseContext();
+            using var db = CreateDatabaseContext();
             action(db.Set<TEntity>());
 
             db.SaveChanges();
         }
+
+        private DatabaseContext CreateDatabaseContext() => new DatabaseContext(connectionString);
+
+        private readonly string connectionString;
     }
 }

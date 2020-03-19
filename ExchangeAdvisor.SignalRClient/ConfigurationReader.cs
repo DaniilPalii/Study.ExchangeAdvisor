@@ -11,6 +11,8 @@ namespace ExchangeAdvisor.SignalRClient
 
         public string SyncfusionLicenseKey => configuration.GetValue<string>("SyncfusionLicenseKey");
 
+        public string DatabaseConnectionString => configuration.GetConnectionString("ExchangeAdvisor");
+
         private readonly IConfiguration configuration;
     }
 }

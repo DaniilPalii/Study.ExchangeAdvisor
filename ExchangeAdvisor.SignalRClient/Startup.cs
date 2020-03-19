@@ -28,7 +28,8 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddHttpClient();
             services.AddScoped<IRateWebFetcher, RateWebFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
-            services.AddScoped<IHistoricalRatesRepository, HistoricalRatesRepository>();
+            services.AddScoped<IHistoricalRatesRepository, HistoricalRatesRepository>(
+                _ => new HistoricalRatesRepository(configurationReader.DatabaseConnectionString));
             services.AddScoped<IRateService, RateService>();
         }
 

@@ -9,9 +9,9 @@ namespace ExchangeAdvisor.DB.Repositories
 {
     public class HistoricalRatesRepository : IHistoricalRatesRepository
     {
-        public HistoricalRatesRepository()
+        public HistoricalRatesRepository(string connectionString)
         {
-            entityRepository = new Repository<HistoricalRate>();
+            entityRepository = new Repository<HistoricalRate>(connectionString);
         }
 
         public IEnumerable<Rate> Get(DateRange dateRange, CurrencyPair currencyPair)

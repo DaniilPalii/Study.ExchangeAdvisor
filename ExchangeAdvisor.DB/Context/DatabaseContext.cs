@@ -5,11 +5,16 @@ namespace ExchangeAdvisor.DB.Context
 {
     internal class DatabaseContext : DbContext
     {
+        public DatabaseContext(string connectionString)
+        {
+            this.connectionString = connectionString;
+        }
+
         public DbSet<HistoricalRate> HistoricalRates { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-            => optionsBuilder.UseSqlServer("Data Source=localhost;Initial Catalog=ExchangeAdvisor;Integrated Security=True");
+            => optionsBuilder.UseSqlServer(connectionString);
 
-        // TODO: move connection string to configuration file in this assembly if possible
+        private readonly string connectionString;
     }
 }
