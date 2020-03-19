@@ -10,17 +10,22 @@ namespace ExchangeAdvisor.ML
 {
     public class RateForecaster : IRateForecaster
     {
+        public RateForecaster(IHistoricalRatesRepository historicalRatesRepository)
+        {
+            modelBuilder = new ModelBuilder(historicalRatesRepository);
+        }
+
         public async Task<IEnumerable<Rate>> ForecastAsync(DateRange dateRange, CurrencyPair currencyPair)
         {
-            var modelBuildingTask = Task.Run(() => new ModelBuilder().Build());
-            var inputs = dateRange.Days.Select(d => new ModelInput(d));
+            var modelBuildingTask = Task.Run(() => modelBuilder.Build(currencyPair));
+            var inputs = dateRange.Days.Select(d => new ModelPredictionInput(d));
             var model = await modelBuildingTask;
 
             return model.Predict(inputs)
                 .Select(p => ToRate(p, currencyPair));
         }
 
-        private static Rate ToRate((ModelInput, ModelOutput) inputOutputModelsPair, CurrencyPair currencyPair)
+        private static Rate ToRate((ModelPredictionInput, ModelOutput) inputOutputModelsPair, CurrencyPair currencyPair)
         {
             var (input, output) = inputOutputModelsPair;
 
@@ -29,5 +34,7 @@ namespace ExchangeAdvisor.ML
                 value: output.Score,
                 currencyPair);
         }
+
+        private readonly ModelBuilder modelBuilder;
     }
 }

@@ -1,33 +1,33 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.ML.Data;
 
 namespace ExchangeAdvisor.ML.Internal
 {
-    internal class ModelInput
+    internal class ModelPredictionInput
     {
-        [ColumnName("Year"), LoadColumn(0)]
         public float Year { get; set; }
 
-        [ColumnName("Month"), LoadColumn(1)]
         public float Month { get; set; }
 
-        [ColumnName("Day"), LoadColumn(2)]
         public float Day { get; set; }
 
-        [ColumnName("Absolute day number"), LoadColumn(3)]
         public float AbsoluteDayNumber { get; set; }
 
-        [ColumnName("Day of week"), LoadColumn(4)]
         public float DayOfWeek { get; set; }
 
-        [ColumnName("Day of year"), LoadColumn(5)]
         public float DayOfYear { get; set; }
 
-        [ColumnName("Rate"), LoadColumn(6)]
-        public float Rate { get; set; }
+        public static string[] InputFeatureNames => new[]
+        {
+            nameof(Year),
+            nameof(Month),
+            nameof(Day),
+            nameof(AbsoluteDayNumber),
+            nameof(DayOfWeek),
+            nameof(DayOfYear)
+        };
 
-        public ModelInput(DateTime rateDay)
+        public ModelPredictionInput(DateTime rateDay)
         {
             Year = rateDay.Year;
             Month = rateDay.Month;
@@ -35,12 +35,6 @@ namespace ExchangeAdvisor.ML.Internal
             AbsoluteDayNumber = GetAbsoluteDayNumber(rateDay);
             DayOfWeek = GetDayOfWeekNumber(rateDay);
             DayOfYear = rateDay.DayOfYear;
-        }
-
-        public ModelInput(DateTime rateDay, float rate)
-            : this(rateDay)
-        {
-            Rate = rate;
         }
 
         public static int GetDayOfWeekNumber(DateTime day) => DayOfWeekNumbers[day.DayOfWeek];

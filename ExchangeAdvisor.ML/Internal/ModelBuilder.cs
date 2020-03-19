@@ -1,46 +1,48 @@
 using System.Linq;
+using ExchangeAdvisor.Domain.Services;
+using ExchangeAdvisor.Domain.Values;
 using Microsoft.ML;
 
 namespace ExchangeAdvisor.ML.Internal
 {
     internal class ModelBuilder
     {
-        public Model Build()
+        public ModelBuilder(IHistoricalRatesRepository historicalRatesRepository)
         {
-            var trainingDataView = mlContext.Data.LoadFromTextFile<ModelInput>(
-                path: @"C:\Code\ExchangeAdvisor\MLSource\Exchange rate history.tsv",
-                hasHeader: true,
-                separatorChar: '\t',
-                allowQuoting: true,
-                allowSparse: false);
+            this.historicalRatesRepository = historicalRatesRepository;
+        }
 
+        public Model Build(CurrencyPair currencyPair)
+        {
+            var trainingData = GetTrainingData(currencyPair);
             var trainingPipeline = BuildTrainingPipeline();
-            mlContext.Regression.CrossValidate(trainingDataView, trainingPipeline, numberOfFolds: 5, labelColumnName: "Rate");
+            mlContext.Regression.CrossValidate(trainingData, trainingPipeline, numberOfFolds: 5, ModelLearningInput.FeatureToPredictName);
 
-            var model = trainingPipeline.Fit(trainingDataView);
-            var modelPredictionEngine = mlContext.Model.CreatePredictionEngine<ModelInput, ModelOutput>(model);
+            var model = trainingPipeline.Fit(trainingData);
+            var modelPredictionEngine = mlContext.Model.CreatePredictionEngine<ModelPredictionInput, ModelOutput>(model);
 
             return new Model(modelPredictionEngine);
         }
 
+        private IDataView GetTrainingData(CurrencyPair currencyPair)
+        {
+            var modelLearningInputs = historicalRatesRepository.Get(DateRange.FromMinDate().UntilToday(), currencyPair)
+                .Select(r => new ModelLearningInput(r));
+
+            return mlContext.Data.LoadFromEnumerable(modelLearningInputs);
+        }
+
         private IEstimator<ITransformer> BuildTrainingPipeline()
         {
-            var dataProcessPipeline = mlContext.Transforms.Concatenate(
-                "Features",
-                new[]
-                {
-                    "Year",
-                    "Month",
-                    "Day",
-                    "Absolute day number",
-                    "Day of week",
-                    "Day of year"
-                });
-            var trainer = mlContext.Regression.Trainers.FastTree(labelColumnName: "Rate", featureColumnName: "Features");
+            var dataProcessPipeline = mlContext.Transforms.Concatenate(FeaturesColumnName, ModelPredictionInput.InputFeatureNames);
+            var trainer = mlContext.Regression.Trainers.FastTree(labelColumnName: ModelLearningInput.FeatureToPredictName, FeaturesColumnName);
 
             return dataProcessPipeline.Append(trainer);
         }
 
+        private const string FeaturesColumnName = "Features";
+
         private readonly MLContext mlContext = new MLContext();
+        private readonly IHistoricalRatesRepository historicalRatesRepository;
     }
 }

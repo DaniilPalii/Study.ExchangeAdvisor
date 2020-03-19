@@ -18,9 +18,15 @@ namespace ExchangeAdvisor.Domain.Values
             }
         }
 
-        public DateRange(DateTime end) : this(DateTime.MinValue, end) { }
+        public static IDateRangeFrom FromMinDate() => From(DateTime.MinValue);
 
-        public DateRange(DateTime start, DateTime end)
+        public static IDateRangeFrom FromToday() => From(DateTime.Today);
+
+        public static IDateRangeFrom From(int year, int month, int day) => From(new DateTime(year, month, day));
+
+        public static IDateRangeFrom From(DateTime start) => new DateRangeFrom(start);
+
+        private DateRange(DateTime start, DateTime end)
         {
             start = start.Date;
             end = end.Date;
@@ -55,5 +61,31 @@ namespace ExchangeAdvisor.Domain.Values
         public static bool operator ==(DateRange left, DateRange right) => left.Equals(right);
 
         public static bool operator !=(DateRange left, DateRange right) => !(left == right);
+
+        private struct DateRangeFrom : IDateRangeFrom
+        {
+            public DateRangeFrom(DateTime start) => Start = start;
+
+            public DateRange UntilMaxDate() => Until(DateTime.MaxValue);
+
+            public DateRange UntilToday() => Until(DateTime.Today);
+
+            public DateRange Until(int year, int month, int day) => Until(new DateTime(year, month, day));
+
+            public DateRange Until(DateTime end) => new DateRange(Start, end);
+
+            private readonly DateTime Start;
+        }
+    }
+
+    public interface IDateRangeFrom
+    {
+        DateRange Until(DateTime end);
+
+        DateRange Until(int year, int month, int day);
+
+        DateRange UntilToday();
+
+        DateRange UntilMaxDate();
     }
 }

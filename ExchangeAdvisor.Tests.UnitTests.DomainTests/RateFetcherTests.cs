@@ -34,9 +34,7 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
         {
             await rateFetcher
                 .FetchAsync(
-                    new DateRange(
-                        new DateTime(2019, 1, 1),
-                        new DateTime(2019, 1, 31)),
+                    DateRange.From(2019, 1, 1).Until(2019, 1, 31),
                     new CurrencyPair(Currency.USD, Currency.PLN))
                 .ConfigureAwait(false);
 
@@ -69,14 +67,10 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                     + "\"end_at\":\"2019-01-03\""
                 + "}");
 
-            var rateHistory = (await rateFetcher
-                .FetchAsync(
-                    new DateRange(
-                        new DateTime(2019, 1, 1),
-                        new DateTime(2019, 1, 2)),
-                    new CurrencyPair(Currency.USD, Currency.PLN))
-                .ConfigureAwait(false))
-                    .ToArray();
+            var rateHistory = (await rateFetcher.FetchAsync(
+                    DateRange.From(2019, 1, 1).Until(2019, 1, 2),
+                    new CurrencyPair(Currency.USD, Currency.PLN)))
+                .ToArray();
 
             rateHistory.Should().BeEquivalentTo(new[]
             {
@@ -99,13 +93,8 @@ namespace ExchangeAdvisor.Tests.UnitTests.DomainTests
                     + "\"end_at\":\"2019-01-03\""
                 + "}");
 
-            var rateHistory = (await rateFetcher
-                .FetchAsync(
-                    new DateRange(
-                        new DateTime(2019, 1, 1),
-                        new DateTime(2019, 1, 2)))
-                .ConfigureAwait(false))
-                    .ToArray();
+            var rateHistory = (await rateFetcher.FetchAsync(DateRange.From(2019, 1, 1).Until(2019, 1, 2)))
+                .ToArray();
 
             rateHistory.Should().BeEquivalentTo(new[]
             {

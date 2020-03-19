@@ -5,12 +5,12 @@ namespace ExchangeAdvisor.ML.Internal
 {
     internal class Model
     {
-        public Model(PredictionEngine<ModelInput, ModelOutput> predictionEngine)
+        public Model(PredictionEngine<ModelPredictionInput, ModelOutput> predictionEngine)
         {
             this.predictionEngine = predictionEngine;
         }
 
-        public IEnumerable<(ModelInput, ModelOutput)> Predict(IEnumerable<ModelInput> inputs)
+        public IEnumerable<(ModelPredictionInput, ModelOutput)> Predict(IEnumerable<ModelPredictionInput> inputs)
         {
             foreach (var input in inputs)
             {
@@ -20,8 +20,8 @@ namespace ExchangeAdvisor.ML.Internal
             }
         }
 
-        public ModelOutput Predict(ModelInput input) => predictionEngine.Predict(input);
+        public ModelOutput Predict(ModelPredictionInput input) => predictionEngine.Predict(input);
 
-        private readonly PredictionEngine<ModelInput, ModelOutput> predictionEngine;
+        private readonly PredictionEngine<ModelPredictionInput, ModelOutput> predictionEngine;
     }
 }
