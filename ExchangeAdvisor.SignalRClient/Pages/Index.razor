@@ -29,12 +29,14 @@
     <EjsDateRangePicker @bind-StartDate="@StartDate" @bind-EndDate="@EndDate" Width="180px" ShowClearButton="false"
                         MinDays="1" StrictMode="true">
     </EjsDateRangePicker>
-    @*<EjsDropDownList @bind-Value="@BaseCurrencyName" DataSource="@Currencies" TValue="string"
+    <EjsDropDownList @bind-Value="@BaseCurrencyName" DataSource="@Currencies"
+                     TValue="string" TItem="string"
                      Placeholder="Base currency" Width="80px">
     </EjsDropDownList>
-    <EjsDropDownList @bind-Value="@ComparingCurrencyName" DataSource="@Currencies" TValue="string"
+    <EjsDropDownList @bind-Value="@ComparingCurrencyName" DataSource="@Currencies"
+                     TValue="string" TItem="string"
                      Placeholder="Comparing currency" Width="80px">
-    </EjsDropDownList>*@
+    </EjsDropDownList>
     <EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
 </div>
 <div>
@@ -43,8 +45,8 @@
 
 @code
 {
-    private Rate[] HistoricalRates { get; set; } = Array.Empty<Rate>();
-    private Rate[] ForecastRates { get; set; } = Array.Empty<Rate>();
+    private IReadOnlyCollection<Rate> HistoricalRates { get; set; } = Array.Empty<Rate>();
+    private IReadOnlyCollection<Rate> ForecastRates { get; set; } = Array.Empty<Rate>();
     private DateTime? StartDate { get; set; } = DateTime.Today.AddMonths(-2);
     private DateTime? EndDate { get; set; } = DateTime.Today.AddMonths(2);
     private string BaseCurrencyName { get; set; } = Domain.Values.Currency.EUR.ToString();
@@ -70,6 +72,6 @@
         var today = DateTime.Today;
 
         HistoricalRates = rates.TakeWhile(r => r.Day <= today).ToArray();
-        ForecastRates = rates.Skip(HistoricalRates.Length - 1).ToArray();
+        ForecastRates = rates.Skip(HistoricalRates.Count - 1).ToArray();
     }
 }
