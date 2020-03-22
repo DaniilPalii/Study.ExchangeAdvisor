@@ -1,3 +1,5 @@
+using ExchangeAdvisor.DB.Context;
+using ExchangeAdvisor.DB.Migrations;
 using ExchangeAdvisor.DB.Repositories;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
@@ -14,9 +16,9 @@ namespace ExchangeAdvisor.SignalRClient
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration applicationConfiguration)
         {
-            configurationReader = new ConfigurationReader(configuration);
+            configurationReader = new ApplicationConfigurationReader(applicationConfiguration);
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -26,16 +28,18 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddSyncfusionBlazor();
 
             services.AddHttpClient();
+            services.AddSingleton<IConfigurationReader>(configurationReader);
             services.AddScoped<IRateWebFetcher, RateWebFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
-            services.AddScoped<IHistoricalRatesRepository, HistoricalRatesRepository>(
-                _ => new HistoricalRatesRepository(configurationReader.DatabaseConnectionString));
+            services.AddScoped<IHistoricalRatesRepository, HistoricalRatesRepository>();
             services.AddScoped<IRateService, RateService>();
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment environment)
         {
             SyncfusionLicenseProvider.RegisterLicense(configurationReader.SyncfusionLicenseKey);
+
+            new DatabaseMigrator(configurationReader.DatabaseConnectionString).Migrate();
 
             if (environment.IsDevelopment())
             {
@@ -59,6 +63,6 @@ namespace ExchangeAdvisor.SignalRClient
             });
         }
 
-        private readonly ConfigurationReader configurationReader;
+        private readonly ApplicationConfigurationReader configurationReader;
     }
 }

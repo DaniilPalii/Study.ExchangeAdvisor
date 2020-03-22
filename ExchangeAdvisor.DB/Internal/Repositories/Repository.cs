@@ -1,17 +1,18 @@
 ﻿using ExchangeAdvisor.DB.Context;
 using ExchangeAdvisor.DB.Entities.Base;
+using ExchangeAdvisor.Domain.Services;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ExchangeAdvisor.DB.Repositories
+namespace ExchangeAdvisor.DB.Internal.Repositories
 {
     internal class Repository<TEntity> where TEntity : EntityBase
     {
-        public Repository(string connectionString)
+        public Repository(IConfigurationReader configurationReader)
         {
-            this.connectionString = connectionString;
+            this.configurationReader = configurationReader;
         }
 
         public TEntity Get(int id)
@@ -77,8 +78,8 @@ namespace ExchangeAdvisor.DB.Repositories
             db.SaveChanges();
         }
 
-        private DatabaseContext CreateDatabaseContext() => new DatabaseContext(connectionString);
+        private DatabaseContext CreateDatabaseContext() => new DatabaseContext(configurationReader.DatabaseConnectionString);
 
-        private readonly string connectionString;
+        private readonly IConfigurationReader configurationReader;
     }
 }

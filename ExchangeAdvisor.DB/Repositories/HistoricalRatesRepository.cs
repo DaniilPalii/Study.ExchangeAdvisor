@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ExchangeAdvisor.DB.Converters;
 using ExchangeAdvisor.DB.Entities;
+using ExchangeAdvisor.DB.Internal.Converters;
+using ExchangeAdvisor.DB.Internal.Repositories;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
 
@@ -9,9 +10,9 @@ namespace ExchangeAdvisor.DB.Repositories
 {
     public class HistoricalRatesRepository : IHistoricalRatesRepository
     {
-        public HistoricalRatesRepository(string connectionString)
+        public HistoricalRatesRepository(IConfigurationReader configurationReader)
         {
-            entityRepository = new Repository<HistoricalRate>(connectionString);
+            entityRepository = new Repository<HistoricalRate>(configurationReader);
         }
 
         public IEnumerable<Rate> Get(DateRange dateRange, CurrencyPair currencyPair)

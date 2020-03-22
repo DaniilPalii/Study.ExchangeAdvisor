@@ -1,7 +1,7 @@
 ﻿using ExchangeAdvisor.DB.Entities;
 using ExchangeAdvisor.Domain.Values;
 
-namespace ExchangeAdvisor.DB.Converters
+namespace ExchangeAdvisor.DB.Internal.Converters
 {
     internal static class RateConverter
     {
