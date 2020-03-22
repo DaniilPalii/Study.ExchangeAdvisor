@@ -27,19 +27,21 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             }
             else if (dateRange.Start > DateTime.Today)
             {
-                rates = await rateForecaster.ForecastAsync(dateRange, currencyPair);
+                var historicalRates = await GetFromFromWebWithCachingInRepository(
+                    DateRange.FromMinDate().UntilToday(),
+                    currencyPair);
+
+                rates = await rateForecaster.ForecastAsync(historicalRates, dateRange);
             }
             else
             {
-                var gettingFromRepositoryTask = GetFromFromWebWithCachingInRepository(
+                var historicalRates = await GetFromFromWebWithCachingInRepository(
                     DateRange.From(dateRange.Start).UntilToday(),
                     currencyPair);
-                var forecastingTask = rateForecaster.ForecastAsync(
-                    DateRange.From(DateTime.Today.AddDays(1)).Until(dateRange.End),
-                    currencyPair);
+                var forecastedRates = await rateForecaster.ForecastAsync(
+                    historicalRates,
+                    DateRange.From(DateTime.Today.AddDays(1)).Until(dateRange.End));
 
-                var historicalRates = await gettingFromRepositoryTask;
-                var forecastedRates = await forecastingTask;
                 rates = historicalRates.Concat(forecastedRates);
             }
 
@@ -65,8 +67,9 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
         private async Task RefreshRepositoryRatesWithWebAsync(CurrencyPair currencyPair)
         {
-            var dateRange = DateRange.FromMinDate().UntilToday();
-            var ratesFromWeb = await rateWebFetcher.FetchAsync(dateRange, currencyPair);
+            var ratesFromWeb = await rateWebFetcher.FetchAsync(
+                DateRange.FromMinDate().UntilToday(),
+                currencyPair);
 
             historicalRatesRepository.Update(ratesFromWeb);
         }

@@ -6,6 +6,6 @@ namespace ExchangeAdvisor.Domain.Services
 {
     public interface IRateForecaster
     {
-        Task<IEnumerable<Rate>> ForecastAsync(DateRange dateRange, CurrencyPair currencyPair);
+        Task<IEnumerable<Rate>> ForecastAsync(ICollection<Rate> historicalRates, DateRange dateRange);
     }
 }

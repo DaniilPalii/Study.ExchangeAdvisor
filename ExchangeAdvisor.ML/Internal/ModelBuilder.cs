@@ -1,5 +1,6 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
-using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
 using Microsoft.ML;
 
@@ -7,16 +8,11 @@ namespace ExchangeAdvisor.ML.Internal
 {
     internal class ModelBuilder
     {
-        public ModelBuilder(IHistoricalRatesRepository historicalRatesRepository)
+        public Model Build(ICollection<Rate> historicalRates)
         {
-            this.historicalRatesRepository = historicalRatesRepository;
-        }
-
-        public Model Build(CurrencyPair currencyPair)
-        {
-            var trainingData = GetTrainingData(currencyPair);
+            var trainingData = ToTrainingData(historicalRates);
             var trainingPipeline = BuildTrainingPipeline();
-            mlContext.Regression.CrossValidate(trainingData, trainingPipeline, numberOfFolds: 5, ModelLearningInput.FeatureToPredictName);
+            mlContext.Regression.CrossValidate(trainingData, trainingPipeline, numberOfFolds: 5, ModelLearningInput.PredictableFeatureName);
 
             var model = trainingPipeline.Fit(trainingData);
             var modelPredictionEngine = mlContext.Model.CreatePredictionEngine<ModelPredictionInput, ModelOutput>(model);
@@ -24,9 +20,16 @@ namespace ExchangeAdvisor.ML.Internal
             return new Model(modelPredictionEngine);
         }
 
-        private IDataView GetTrainingData(CurrencyPair currencyPair)
+        private IDataView ToTrainingData(ICollection<Rate> historicalRates)
         {
-            var modelLearningInputs = historicalRatesRepository.Get(DateRange.FromMinDate().UntilToday(), currencyPair)
+            if (historicalRates.Count < 2)
+                throw new ArgumentException("Needs at least 2 historical rates");
+
+            var firstRateCurrencyPair = historicalRates.First().CurrencyPair;
+            if (historicalRates.Skip(1).Any(r => r.CurrencyPair != firstRateCurrencyPair))
+                throw new ArgumentException("All rates should have same currency pair");
+
+            var modelLearningInputs = historicalRates.OrderBy(r => r.Day)
                 .Select(r => new ModelLearningInput(r));
 
             return mlContext.Data.LoadFromEnumerable(modelLearningInputs);
@@ -35,7 +38,7 @@ namespace ExchangeAdvisor.ML.Internal
         private IEstimator<ITransformer> BuildTrainingPipeline()
         {
             var dataProcessPipeline = mlContext.Transforms.Concatenate(FeaturesColumnName, ModelPredictionInput.InputFeatureNames);
-            var trainer = mlContext.Regression.Trainers.FastTree(labelColumnName: ModelLearningInput.FeatureToPredictName, FeaturesColumnName);
+            var trainer = mlContext.Regression.Trainers.FastTree(ModelLearningInput.PredictableFeatureName, FeaturesColumnName);
 
             return dataProcessPipeline.Append(trainer);
         }
@@ -43,6 +46,5 @@ namespace ExchangeAdvisor.ML.Internal
         private const string FeaturesColumnName = "Features";
 
         private readonly MLContext mlContext = new MLContext();
-        private readonly IHistoricalRatesRepository historicalRatesRepository;
     }
 }

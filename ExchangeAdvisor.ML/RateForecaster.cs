@@ -10,19 +10,21 @@ namespace ExchangeAdvisor.ML
 {
     public class RateForecaster : IRateForecaster
     {
-        public RateForecaster(IHistoricalRatesRepository historicalRatesRepository)
+        public RateForecaster()
         {
-            modelBuilder = new ModelBuilder(historicalRatesRepository);
+            modelBuilder = new ModelBuilder();
         }
 
-        public async Task<IEnumerable<Rate>> ForecastAsync(DateRange dateRange, CurrencyPair currencyPair)
+        public async Task<IEnumerable<Rate>> ForecastAsync(ICollection<Rate> historicalRates, DateRange dateRange)
         {
-            var modelBuildingTask = Task.Run(() => modelBuilder.Build(currencyPair));
+            var modelBuildingTask = Task.Run(() => modelBuilder.Build(historicalRates));
             var inputs = dateRange.Days.Select(d => new ModelPredictionInput(d));
-            var model = await modelBuildingTask;
 
-            return model.Predict(inputs)
-                .Select(p => ToRate(p, currencyPair));
+            var model = await modelBuildingTask;
+            var prediction = model.Predict(inputs);
+
+            var currencyPair = historicalRates.First().CurrencyPair;
+            return prediction.Select(p => ToRate(p, currencyPair));
         }
 
         private static Rate ToRate((ModelPredictionInput, ModelOutput) inputOutputModelsPair, CurrencyPair currencyPair)

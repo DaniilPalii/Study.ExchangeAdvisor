@@ -5,7 +5,7 @@ namespace ExchangeAdvisor.ML.Internal
 {
     internal class ModelLearningInput : ModelPredictionInput
     {
-        public static string FeatureToPredictName => nameof(Rate);
+        public static string PredictableFeatureName => nameof(Rate);
 
         public ModelLearningInput(Rate rate) : this(rate.Day, rate.Value) { }
 
