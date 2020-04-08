@@ -13,11 +13,15 @@ namespace ExchangeAdvisor.DB.Entities
 
         public HistoricalRateEntity() { }
 
-        public HistoricalRateEntity(Rate rate, RateHistoryEntity rateHistory)
+        public HistoricalRateEntity(Rate rate, RateHistoryEntity rateHistory) : this(rate)
+        {
+            History = rateHistory;
+        }
+
+        public HistoricalRateEntity(Rate rate)
         {
             Day = rate.Day;
             Value = rate.Value;
-            History = rateHistory;
         }
 
         public Rate ToRate()

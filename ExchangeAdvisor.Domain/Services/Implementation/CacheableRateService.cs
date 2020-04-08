@@ -30,7 +30,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
             var webRateHistory = await webHistoryFetcher.FetchAsync(HistoricalDateRange, currencyPair);
 
-            return await historyRepository.UpdateAsync(webRateHistory);
+            return await historyRepository.AddOrUpdateAsync(webRateHistory);
         }
 
         public async Task<RateForecast> GetActualForecastAsync(CurrencyPair currencyPair)
@@ -41,7 +41,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             var history = await historyRepository.GetAsync(currencyPair);
             var forecast = await forecaster.ForecastAsync(history, ForecastingDateRange);
 
-            return await forecastRepository.UpdateAsync(forecast);
+            return await forecastRepository.AddOrUpdateAsync(forecast);
         }
 
         public Task<IEnumerable<RateForecastMetadata>> GetAllSavedForecastsMetadataAsync(CurrencyPair currencyPair)

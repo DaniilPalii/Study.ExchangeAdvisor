@@ -14,22 +14,21 @@ namespace ExchangeAdvisor.DB.Repositories
 {
     public class RateHistoryRepository : RepositoryBase, IRateHistoryRepository
     {
-        public RateHistoryRepository(IDatabaseConnectionStringReader connectionStringReader)
-            : base(connectionStringReader)
-        { }
+        public RateHistoryRepository(IDatabaseConnectionStringReader connectionStringReader) : base(
+            connectionStringReader) { }
 
         public async Task<bool> ExistsAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            return await dbc.RateHistory.AnyAsync(By(currencyPair));
+            return await dbc.RateHistory.AnyAsync(EqualsBy(currencyPair));
         }
 
         public async Task<DateTime> GetLastDayAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            var history = await dbc.RateHistory.SingleAsync(By(currencyPair));
+            var history = await dbc.RateHistory.SingleAsync(EqualsBy(currencyPair));
 
             return await dbc.HistoricalRate.Where(r => r.History.Id == history.Id).MaxAsync(r => r.Day);
         }
@@ -41,17 +40,17 @@ namespace ExchangeAdvisor.DB.Repositories
             return (await GetFullHistoryAsync(dbc, currencyPair)).ToRateHistory();
         }
 
-        public async Task<RateHistory> UpdateAsync(RateHistory history)
+        public async Task<RateHistory> AddOrUpdateAsync(RateHistory history)
         {
             await using var dbc = CreateDatabaseContext();
 
             var existingHistory = await GetFullHistoryAsync(dbc, history.CurrencyPair);
-            var existingRateDays = existingHistory.Rates.Select(r => r.Day).ToHashSet();
-            var newRateEntities = history.Rates.Where(r => !existingRateDays.Contains(r.Day));
 
-            existingHistory.Rates.Add(newRateEntities.Select(r => new HistoricalRateEntity(r, existingHistory)));
+            if (existingHistory == null)
+                await dbc.RateHistory.AddAsync(new RateHistoryEntity(history));
+            else
+                Update(dbc, existingHistory, history);
 
-            dbc.Entry(existingHistory).Property(h => h.Rates).IsModified = true;
             await dbc.SaveChangesAsync();
 
             return (await GetFullHistoryAsync(dbc, history.CurrencyPair)).ToRateHistory();
@@ -59,12 +58,23 @@ namespace ExchangeAdvisor.DB.Repositories
 
         private static Task<RateHistoryEntity> GetFullHistoryAsync(DatabaseContext dbc, CurrencyPair currencyPair)
         {
-            return dbc.RateHistory.Include(h => h.Rates).SingleAsync(By(currencyPair));
+            return dbc.RateHistory.Include(h => h.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair));
         }
 
-        private static Expression<Func<RateHistoryEntity, bool>> By(CurrencyPair currencyPair)
+        private static void Update(DatabaseContext dbc, RateHistoryEntity existingHistory, RateHistory newHistory)
         {
-            return rateHistory => currencyPair.Equals(rateHistory.BaseCurrency, rateHistory.ComparingCurrency);
+            var existingRateDays = existingHistory.Rates.Select(r => r.Day).ToHashSet();
+            var newRates = newHistory.Rates.Where(r => !existingRateDays.Contains(r.Day));
+
+            existingHistory.Rates.Add(newRates.Select(r => new HistoricalRateEntity(r, existingHistory)));
+
+            dbc.Entry(existingHistory).Collection(h => h.Rates).IsModified = true;
+        }
+
+        private static Expression<Func<RateHistoryEntity, bool>> EqualsBy(CurrencyPair currencyPair)
+        {
+            return history => history.BaseCurrency == currencyPair.Base
+                && history.ComparingCurrency == currencyPair.Comparing;
         }
     }
 }

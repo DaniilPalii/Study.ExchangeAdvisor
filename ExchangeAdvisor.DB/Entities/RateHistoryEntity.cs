@@ -15,7 +15,16 @@ namespace ExchangeAdvisor.DB.Entities
 
         [Column(TypeName = ColumnTypeName.Currency)]
         public Currency ComparingCurrency { get; set; }
-        
+
+        public RateHistoryEntity() { }
+
+        public RateHistoryEntity(RateHistory history)
+        {
+            Rates = history.Rates.Select(r => new HistoricalRateEntity(r)).ToArray();
+            BaseCurrency = history.CurrencyPair.Base;
+            ComparingCurrency = history.CurrencyPair.Comparing;
+        }
+
         public RateHistory ToRateHistory()
         {
             return new RateHistory(

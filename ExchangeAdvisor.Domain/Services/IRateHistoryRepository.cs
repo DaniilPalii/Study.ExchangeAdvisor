@@ -13,6 +13,6 @@ namespace ExchangeAdvisor.Domain.Services
         
         Task<RateHistory> GetAsync(CurrencyPair currencyPair);
 
-        Task<RateHistory> UpdateAsync(RateHistory history);
+        Task<RateHistory> AddOrUpdateAsync(RateHistory history);
     }
 }

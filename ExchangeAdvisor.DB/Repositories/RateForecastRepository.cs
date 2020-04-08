@@ -10,7 +10,6 @@ using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;
 using Microsoft.EntityFrameworkCore;
-using DomainRateForecast = ExchangeAdvisor.Domain.Values.Rate.RateForecast;
 
 namespace ExchangeAdvisor.DB.Repositories
 {
@@ -24,38 +23,37 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            return await dbc.RateForecast.AnyAsync(By(currencyPair, creationDay));
+            return await dbc.RateForecast.AnyAsync(EqualsBy(currencyPair, creationDay));
         }
 
-        public async Task<DomainRateForecast> GetAsync(CurrencyPair currencyPair, DateTime creationDay)
+        public async Task<RateForecast> GetAsync(CurrencyPair currencyPair, DateTime creationDay)
         {
             await using var dbc = CreateDatabaseContext();
 
             return (await GetForecastWithRatesAsync(dbc, currencyPair, creationDay)).ToRateForecast();
         }
 
-        public async Task<DomainRateForecast> UpdateAsync(DomainRateForecast forecast)
+        public async Task<RateForecast> AddOrUpdateAsync(RateForecast forecast)
         {
             await using var dbc = CreateDatabaseContext();
 
             var existingForecast = await GetForecastWithRatesAsync(dbc, forecast.CurrencyPair, forecast.CreationDay);
-            var existingRateDays = existingForecast.Rates.Select(r => r.Day).ToHashSet();
-            var newRates = forecast.Rates.Where(r => !existingRateDays.Contains(r.Day));
 
-            existingForecast.Rates.Add(newRates.Select(r => new ForecastRateEntity(r, existingForecast)));
+            if (existingForecast == null)
+                dbc.RateForecast.Add(new RateForecastEntity(forecast));
+            else
+                Update(dbc, existingForecast, forecast);
 
-            dbc.Entry(existingForecast).Property(f => f.Rates).IsModified = true;
             await dbc.SaveChangesAsync();
 
-            return (await GetForecastWithRatesAsync(dbc, forecast.CurrencyPair, forecast.CreationDay))
-                .ToRateForecast();
+            return (await GetForecastWithRatesAsync(dbc, forecast.CurrencyPair, forecast.CreationDay)).ToRateForecast();
         }
 
         public async Task<IEnumerable<RateForecastMetadata>> GetAllForecastsMetadataAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            return await dbc.RateForecast.Where(f => currencyPair.Equals(f.BaseCurrency, f.ComparingCurrency))
+            return await dbc.RateForecast.Where(EqualsBy(currencyPair))
                 .Select(f => f.ToRateForecastMetadata())
                 .ToArrayAsync();
         }
@@ -64,21 +62,21 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            var existingForecast = await dbc.RateForecast.SingleAsync(By(metadata.CurrencyPair, metadata.CreationDay));
+            var existingForecast = await GetForecastWithoutRatesAsync(dbc, metadata);
 
             existingForecast.Description = metadata.Description;
 
             dbc.Entry(existingForecast).Property(m => m.Description).IsModified = true;
             await dbc.SaveChangesAsync();
 
-            return (await GetForecastWithoutRatesAsync(metadata, dbc)).ToRateForecastMetadata();
+            return (await GetForecastWithoutRatesAsync(dbc, metadata)).ToRateForecastMetadata();
         }
-        
+
         private static async Task<RateForecastEntity> GetForecastWithoutRatesAsync(
-            RateForecastMetadata metadata,
-            DatabaseContext dbc)
+            DatabaseContext dbc,
+            RateForecastMetadata metadata)
         {
-            return await dbc.RateForecast.SingleAsync(By(metadata.CurrencyPair, metadata.CreationDay));
+            return await dbc.RateForecast.SingleOrDefaultAsync(EqualsBy(metadata.CurrencyPair, metadata.CreationDay));
         }
 
         private static Task<RateForecastEntity> GetForecastWithRatesAsync(
@@ -86,13 +84,32 @@ namespace ExchangeAdvisor.DB.Repositories
             CurrencyPair currencyPair,
             DateTime creationDay)
         {
-            return dbc.RateForecast.Include(f => f.Rates).SingleAsync(By(currencyPair, creationDay));
+            return dbc.RateForecast.Include(f => f.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair, creationDay));
         }
 
-        private static Expression<Func<RateForecastEntity, bool>> By(CurrencyPair currencyPair, DateTime creationDay)
+        private static void Update(DatabaseContext dbc, RateForecastEntity existingForecast, RateForecast newForecast)
         {
-            return rateForecast => currencyPair.Equals(rateForecast.BaseCurrency, rateForecast.ComparingCurrency)
-                && rateForecast.CreationDay == creationDay;
+            var existingRateDays = existingForecast.Rates.Select(r => r.Day).ToHashSet();
+            var newRates = newForecast.Rates.Where(r => !existingRateDays.Contains(r.Day));
+
+            existingForecast.Rates.Add(newRates.Select(r => new ForecastRateEntity(r, existingForecast)));
+
+            dbc.Entry(existingForecast).Collection(f => f.Rates).IsModified = true;
+        }
+
+        private static Expression<Func<RateForecastEntity, bool>> EqualsBy(CurrencyPair currencyPair)
+        {
+            return forecast => forecast.BaseCurrency == currencyPair.Base
+                && forecast.ComparingCurrency == currencyPair.Comparing;
+        }
+
+        private static Expression<Func<RateForecastEntity, bool>> EqualsBy(
+            CurrencyPair currencyPair,
+            DateTime creationDay)
+        {
+            return forecast => forecast.BaseCurrency == currencyPair.Base
+                && forecast.ComparingCurrency == currencyPair.Comparing
+                && forecast.CreationDay == creationDay;
         }
     }
 }

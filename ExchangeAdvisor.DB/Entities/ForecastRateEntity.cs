@@ -13,11 +13,15 @@ namespace ExchangeAdvisor.DB.Entities
 
         public ForecastRateEntity() { }
 
-        public ForecastRateEntity(Rate rate, RateForecastEntity rateForecastEntity)
+        public ForecastRateEntity(Rate rate, RateForecastEntity rateForecastEntity) : this(rate)
+        {
+            Forecast = rateForecastEntity;
+        }
+
+        public ForecastRateEntity(Rate rate)
         {
             Day = rate.Day;
             Value = rate.Value;
-            Forecast = rateForecastEntity;
         }
 
         public Rate ToRate()
