@@ -7,9 +7,8 @@ using ExchangeAdvisor.DB.Entities;
 using ExchangeAdvisor.Domain.Helpers;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
+using ExchangeAdvisor.Domain.Values.Rate;
 using Microsoft.EntityFrameworkCore;
-using RateHistoryEntity = ExchangeAdvisor.DB.Entities.RateHistory;
-using DomainRateHistory = ExchangeAdvisor.Domain.Values.Rate.RateHistory;
 
 namespace ExchangeAdvisor.DB.Repositories
 {
@@ -35,14 +34,14 @@ namespace ExchangeAdvisor.DB.Repositories
             return await dbc.HistoricalRate.Where(r => r.History.Id == history.Id).MaxAsync(r => r.Day);
         }
 
-        public async Task<DomainRateHistory> GetAsync(CurrencyPair currencyPair)
+        public async Task<RateHistory> GetAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            return (await GetFullHistoryAsync(dbc, currencyPair)).ToDomain();
+            return (await GetFullHistoryAsync(dbc, currencyPair)).ToRateHistory();
         }
 
-        public async Task<DomainRateHistory> UpdateAsync(DomainRateHistory history)
+        public async Task<RateHistory> UpdateAsync(RateHistory history)
         {
             await using var dbc = CreateDatabaseContext();
 
@@ -50,15 +49,15 @@ namespace ExchangeAdvisor.DB.Repositories
             var existingRateDays = existingHistory.Rates.Select(r => r.Day).ToHashSet();
             var newRateEntities = history.Rates.Where(r => !existingRateDays.Contains(r.Day));
 
-            existingHistory.Rates.Add(newRateEntities.Select(r => new HistoricalRate(r, existingHistory)));
+            existingHistory.Rates.Add(newRateEntities.Select(r => new HistoricalRateEntity(r, existingHistory)));
 
             dbc.Entry(existingHistory).Property(h => h.Rates).IsModified = true;
             await dbc.SaveChangesAsync();
 
-            return (await GetFullHistoryAsync(dbc, history.CurrencyPair)).ToDomain();
+            return (await GetFullHistoryAsync(dbc, history.CurrencyPair)).ToRateHistory();
         }
 
-        private static Task<RateHistory> GetFullHistoryAsync(DatabaseContext dbc, CurrencyPair currencyPair)
+        private static Task<RateHistoryEntity> GetFullHistoryAsync(DatabaseContext dbc, CurrencyPair currencyPair)
         {
             return dbc.RateHistory.Include(h => h.Rates).SingleAsync(By(currencyPair));
         }

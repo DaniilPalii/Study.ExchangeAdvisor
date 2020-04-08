@@ -11,7 +11,6 @@ using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;
 using Microsoft.EntityFrameworkCore;
 using DomainRateForecast = ExchangeAdvisor.Domain.Values.Rate.RateForecast;
-using RateForecastEntity = ExchangeAdvisor.DB.Entities.RateForecast;
 
 namespace ExchangeAdvisor.DB.Repositories
 {
@@ -32,7 +31,7 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            return (await GetForecastWithRatesAsync(dbc, currencyPair, creationDay)).ToDomainRateForecast();
+            return (await GetForecastWithRatesAsync(dbc, currencyPair, creationDay)).ToRateForecast();
         }
 
         public async Task<DomainRateForecast> UpdateAsync(DomainRateForecast forecast)
@@ -43,13 +42,13 @@ namespace ExchangeAdvisor.DB.Repositories
             var existingRateDays = existingForecast.Rates.Select(r => r.Day).ToHashSet();
             var newRates = forecast.Rates.Where(r => !existingRateDays.Contains(r.Day));
 
-            existingForecast.Rates.Add(newRates.Select(r => new ForecastRate(r, existingForecast)));
+            existingForecast.Rates.Add(newRates.Select(r => new ForecastRateEntity(r, existingForecast)));
 
             dbc.Entry(existingForecast).Property(f => f.Rates).IsModified = true;
             await dbc.SaveChangesAsync();
 
             return (await GetForecastWithRatesAsync(dbc, forecast.CurrencyPair, forecast.CreationDay))
-                .ToDomainRateForecast();
+                .ToRateForecast();
         }
 
         public async Task<IEnumerable<RateForecastMetadata>> GetAllForecastsMetadataAsync(CurrencyPair currencyPair)
@@ -57,7 +56,7 @@ namespace ExchangeAdvisor.DB.Repositories
             await using var dbc = CreateDatabaseContext();
 
             return await dbc.RateForecast.Where(f => currencyPair.Equals(f.BaseCurrency, f.ComparingCurrency))
-                .Select(f => f.ToDomainForecastMetadata())
+                .Select(f => f.ToRateForecastMetadata())
                 .ToArrayAsync();
         }
 
@@ -72,7 +71,7 @@ namespace ExchangeAdvisor.DB.Repositories
             dbc.Entry(existingForecast).Property(m => m.Description).IsModified = true;
             await dbc.SaveChangesAsync();
 
-            return (await GetForecastWithoutRatesAsync(metadata, dbc)).ToDomainForecastMetadata();
+            return (await GetForecastWithoutRatesAsync(metadata, dbc)).ToRateForecastMetadata();
         }
         
         private static async Task<RateForecastEntity> GetForecastWithoutRatesAsync(

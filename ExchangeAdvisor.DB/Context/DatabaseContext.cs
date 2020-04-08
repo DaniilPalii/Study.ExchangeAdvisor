@@ -7,13 +7,13 @@ namespace ExchangeAdvisor.DB.Context
     public class DatabaseContext : DbContext
     {
         // TODO: use plural names if possible
-        public DbSet<RateHistory> RateHistory { get; set; }
+        public DbSet<RateHistoryEntity> RateHistory { get; set; }
 
-        public DbSet<RateForecast> RateForecast { get; set; }
+        public DbSet<RateForecastEntity> RateForecast { get; set; }
 
-        public DbSet<HistoricalRate> HistoricalRate { get; set; }
+        public DbSet<HistoricalRateEntity> HistoricalRate { get; set; }
         
-        public DbSet<ForecastRate> ForecastRate { get; set; }
+        public DbSet<ForecastRateEntity> ForecastRate { get; set; }
 
         public DatabaseContext(string connectionString)
         {
