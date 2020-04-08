@@ -1,16 +1,24 @@
 ﻿using System;
-using System.IO;
-using System.Reflection;
 using ExchangeAdvisor.Domain.Services;
 using Microsoft.Extensions.Configuration;
 
 namespace ExchangeAdvisor.SignalRClient
 {
-    public class ApplicationConfigurationReader : IConfigurationReader
+    public class ApplicationConfigurationReader : IConfigurationReader, IDatabaseConnectionStringReader
     {
         public string SyncfusionLicenseKey => configuration.GetValue<string>("SyncfusionLicenseKey");
 
         public string DatabaseConnectionString => configuration.GetConnectionString("ExchangeAdvisor");
+
+        public TimeSpan ForecastingOffset
+        {
+            get
+            {
+                var forecastingOffsetInDays = configuration.GetValue<int>("ForecastingOffsetInDays");
+
+                return new TimeSpan(forecastingOffsetInDays, hours: 0, minutes: 0, seconds: 0);
+            }
+        }
 
         public ApplicationConfigurationReader(IConfiguration applicationConfiguration)
         {

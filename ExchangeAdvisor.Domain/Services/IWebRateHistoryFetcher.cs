@@ -4,8 +4,8 @@ using ExchangeAdvisor.Domain.Values.Rate;
 
 namespace ExchangeAdvisor.Domain.Services
 {
-    public interface IRateForecaster
+    public interface IWebRateHistoryFetcher
     {
-        Task<RateForecast> ForecastAsync(RateHistory history, DateRange dateRange);
+        Task<RateHistory> FetchAsync(DateRange dateRange, CurrencyPair currencyPair);
     }
 }

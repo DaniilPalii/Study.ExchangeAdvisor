@@ -1,7 +1,9 @@
-﻿namespace ExchangeAdvisor.Domain.Services
+﻿using System;
+
+namespace ExchangeAdvisor.Domain.Services
 {
     public interface IConfigurationReader
     {
-        string DatabaseConnectionString { get; }
+        TimeSpan ForecastingOffset { get; }
     }
 }

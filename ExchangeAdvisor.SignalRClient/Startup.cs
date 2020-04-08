@@ -27,11 +27,13 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddSyncfusionBlazor();
 
             services.AddHttpClient();
+            services.AddSingleton<IDatabaseConnectionStringReader>(configurationReader);
             services.AddSingleton<IConfigurationReader>(configurationReader);
-            services.AddScoped<IRateWebFetcher, RateWebFetcher>();
+            services.AddScoped<IRateHistoryRepository, RateHistoryRepository>();
+            services.AddScoped<IRateForecastRepository, RateForecastRepository>();
+            services.AddScoped<IWebRateHistoryFetcher, WebRateHistoryFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
-            services.AddScoped<IHistoricalRatesRepository, HistoricalRatesRepository>();
-            services.AddScoped<IRateService, RateService>();
+            services.AddScoped<IRateService, CacheableRateService>();
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment environment)

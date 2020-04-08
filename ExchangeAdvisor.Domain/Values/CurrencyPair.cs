@@ -17,9 +17,17 @@ namespace ExchangeAdvisor.Domain.Values
             Comparing = comparing;
         }
 
-        public override bool Equals(object obj)
+        public bool Equals((Currency @base, Currency comparing) other) => Equals(other.@base, other.comparing);
+
+        public bool Equals(Currency otherBase, Currency otherComparing)
         {
-            return obj is CurrencyPair currencyPair
+            return Base == otherBase
+                && Comparing == otherComparing;
+        }
+
+        public override bool Equals(object other)
+        {
+            return other is CurrencyPair currencyPair
                 && Base == currencyPair.Base
                 && Comparing == currencyPair.Comparing;
         }
@@ -28,6 +36,14 @@ namespace ExchangeAdvisor.Domain.Values
 
         public static bool operator ==(CurrencyPair left, CurrencyPair right) => left.Equals(right);
 
+        public static bool operator ==(CurrencyPair left, (Currency @base, Currency comparing) right) => left.Equals(right);
+
+        public static bool operator ==((Currency @base, Currency comparing) left, CurrencyPair right) => right.Equals(left);
+
         public static bool operator !=(CurrencyPair left, CurrencyPair right) => !(left == right);
+
+        public static bool operator !=(CurrencyPair left, (Currency @base, Currency comparing) right) => !(left == right);
+
+        public static bool operator !=((Currency @base, Currency comparing) left, CurrencyPair right) => !(left == right);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using ExchangeAdvisor.Domain.Values;
+using ExchangeAdvisor.Domain.Values.Rate;
 
 namespace ExchangeAdvisor.ML.Internal
 {

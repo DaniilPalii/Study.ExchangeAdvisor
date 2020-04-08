@@ -5,12 +5,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Components\**" />
+    <Content Remove="Components\**" />
+    <EmbeddedResource Remove="Components\**" />
+    <None Remove="Components\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Pages\RateHistoryAndPrediction.razor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Shared\RateHistoryAndPrediction.razor.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ExchangeAdvisor.DB\ExchangeAdvisor.DB.csproj" />
     <ProjectReference Include="..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
     <ProjectReference Include="..\ExchangeAdvisor.ML\ExchangeAdvisor.ML.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.1" />
     <PackageReference Include="Syncfusion.EJ2.Blazor" Version="17.4.0.55" />
   </ItemGroup>
 

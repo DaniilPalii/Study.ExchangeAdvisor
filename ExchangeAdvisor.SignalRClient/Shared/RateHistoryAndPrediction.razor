@@ -1,0 +1,68 @@
+﻿@using ExchangeAdvisor.Domain.Values.Rate
+@using ChartValueType = Syncfusion.EJ2.Blazor.Charts.ValueType
+
+<h1>Exchange rate history and prediction</h1>
+<EjsChart ID="@ChartId">
+    <ChartPrimaryXAxis Title="Day" ValueType="ChartValueType.DateTime"></ChartPrimaryXAxis>
+    <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
+    <ChartSeriesCollection>
+        <ChartSeries DataSource="@HistoricalRates"
+                     Name="History"
+                     Type="@ChartSeriesType.Line"
+                     XName="@nameof(Rate.Day)"
+                     YName="@nameof(Rate.Value)">
+            <ChartMarker Visible="@ShouldShowMarkers"></ChartMarker>
+        </ChartSeries>
+        <ChartSeries DataSource="@ForecastRates"
+                     Name="Forecast"
+                     Fill="#46D246"
+                     Type="@ChartSeriesType.Line"
+                     XName="@nameof(Rate.Day)"
+                     YName="@nameof(Rate.Value)">
+            <ChartMarker Visible="@ShouldShowMarkers"></ChartMarker>
+        </ChartSeries>
+    </ChartSeriesCollection>
+    <ChartTooltipSettings Enable="true" Shared="true"></ChartTooltipSettings>
+    <ChartZoomSettings EnableSelectionZooming="true"
+                       EnableMouseWheelZooming="true"
+                       EnablePinchZooming="true"
+                       EnableDeferredZooming="false"
+                       EnableScrollbar="true"
+                       EnablePan="true">
+    </ChartZoomSettings>
+    <ChartLegendSettings Visible="true"></ChartLegendSettings>
+</EjsChart>
+<EjsSpinner @ref="ChartLoader" Target="@ChartLoaderTargetCssSelector"></EjsSpinner>
+<div>
+    <EjsDateRangePicker @bind-StartDate="@StartDate"
+                        @bind-EndDate="@EndDate"
+                        Width="180px"
+                        ShowClearButton="false"
+                        MinDays="1"
+                        StrictMode="true">
+    </EjsDateRangePicker>
+    <EjsDropDownList @bind-Value="@BaseCurrencyName"
+                     DataSource="@Currencies"
+                     TValue="string"
+                     TItem="string"
+                     Placeholder="Base currency"
+                     Width="80px">
+    </EjsDropDownList>
+    <EjsDropDownList @bind-Value="@ComparingCurrencyName"
+                     DataSource="@Currencies"
+                     TValue="string"
+                     TItem="string"
+                     Placeholder="Comparing currency"
+                     Width="80px">
+    </EjsDropDownList>
+    <EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
+</div>
+<div>
+    <EjsCheckBox Label="Show markers" @bind-Checked="@ShouldShowMarkers"></EjsCheckBox>
+</div>
+
+<style>
+    #@ChartId .e-spinner-pane {
+        transform: translateY(-42px);
+    }
+</style>

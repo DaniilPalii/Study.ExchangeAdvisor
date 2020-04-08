@@ -13,18 +13,12 @@ namespace ExchangeAdvisor.Domain.Values
         {
             get
             {
-                for (var day = Start; day < End; day = day.AddDays(1))
+                for (var day = Start; day <= End; day = day.AddDays(1))
+                {
                     yield return day;
+                }
             }
         }
-
-        public static IDateRangeFrom FromMinDate() => From(DateTime.MinValue);
-
-        public static IDateRangeFrom FromToday() => From(DateTime.Today);
-
-        public static IDateRangeFrom From(int year, int month, int day) => From(new DateTime(year, month, day));
-
-        public static IDateRangeFrom From(DateTime start) => new DateRangeFrom(start);
 
         private DateRange(DateTime start, DateTime end)
         {
@@ -42,7 +36,19 @@ namespace ExchangeAdvisor.Domain.Values
             End = end;
         }
 
-        public bool DoesContain(DateTime date)
+        public static IDateRangeFrom FromMinDate() => From(DateTime.MinValue);
+
+        public static IDateRangeFrom FromToday() => From(DateTime.Today);
+
+        public static IDateRangeFrom From(int year, int month, int day) => From(new DateTime(year, month, day));
+
+        public static IDateRangeFrom From(DateTime start) => new DateRangeFrom(start);
+
+        public DateRange MakeStartingAt(DateTime start) => new DateRange(start, End);
+
+        public DateRange MakeEndingAt(DateTime end) => new DateRange(Start, end);
+
+        public bool Contains(DateTime date)
         {
             date = date.Date;
 
@@ -64,11 +70,16 @@ namespace ExchangeAdvisor.Domain.Values
 
         private struct DateRangeFrom : IDateRangeFrom
         {
-            public DateRangeFrom(DateTime start) => Start = start;
+            public DateRangeFrom(DateTime start)
+            {
+                Start = start;
+            }
 
             public DateRange UntilMaxDate() => Until(DateTime.MaxValue);
 
             public DateRange UntilToday() => Until(DateTime.Today);
+
+            public DateRange Until(TimeSpan offset) => Until(Start + offset);
 
             public DateRange Until(int year, int month, int day) => Until(new DateTime(year, month, day));
 
@@ -83,6 +94,8 @@ namespace ExchangeAdvisor.Domain.Values
         DateRange Until(DateTime end);
 
         DateRange Until(int year, int month, int day);
+
+        DateRange Until(TimeSpan offset);
 
         DateRange UntilToday();
 
