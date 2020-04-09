@@ -29,8 +29,7 @@ namespace ExchangeAdvisor.SignalRClient.Shared
 
             try
             {
-                await FetchHistoricalRatesAsync();
-                await FetchActualForecastRatesAsync();
+                await Task.WhenAll(FetchHistoricalRatesAsync(), FetchActualForecastRatesAsync());
             }
             finally
             {
