@@ -17,19 +17,21 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         {
             ChartLoader = new EjsSpinner();
 
-            await RefreshRatesAsync();
+            await RefreshAsync();
         }
 
-        private async Task RefreshRatesAsync()
+        private async Task RefreshAsync()
         {
             HistoricalRates = Array.Empty<Rate>();
             ForecastRates = Array.Empty<Rate>();
 
             ShowChartLoader();
-
             try
             {
-                await Task.WhenAll(FetchHistoricalRatesAsync(), FetchActualForecastRatesAsync());
+                await Task.WhenAll(
+                    FetchHistoricalRatesAsync(),
+                    FetchActualForecastRatesAsync(),
+                    FetchSavedForecastsMetadataAsync());
             }
             finally
             {
@@ -51,6 +53,16 @@ namespace ExchangeAdvisor.SignalRClient.Shared
             ForecastRates = forecast.Rates.OrderBy(r => r.Day).ToArray();
         }
 
+        private async Task FetchSavedForecastsMetadataAsync()
+        {
+            var forecastsMetadata = await RateService.GetAllSavedForecastsMetadataAsync(CurrencyPair);
+
+            SavedForecastsMetadata = forecastsMetadata.OrderBy(m => m.CreationDay).ToArray();
+
+            foreach (var a in SavedForecastsMetadata)
+                a.Description = "Some description";
+        }
+
         private void ShowChartLoader()
         {
             ChartLoader.ShowSpinner(ChartLoaderTargetCssSelector);
@@ -62,25 +74,17 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         }
 
         private CurrencyPair CurrencyPair => new CurrencyPair(BaseCurrency, ComparingCurrency);
-
         private Currency BaseCurrency => Converter.ToCurrency(BaseCurrencyName);
-
         private Currency ComparingCurrency => Converter.ToCurrency(ComparingCurrencyName);
-
         private IReadOnlyCollection<Rate> HistoricalRates { get; set; } = Array.Empty<Rate>();
-
         private IReadOnlyCollection<Rate> ForecastRates { get; set; } = Array.Empty<Rate>();
-
+        private IReadOnlyCollection<RateForecastMetadata> SavedForecastsMetadata { get; set; }
+            = Array.Empty<RateForecastMetadata>();
         private DateTime? StartDate { get; set; } = DateTime.Today.AddMonths(-3);
-
         private DateTime? EndDate { get; set; } = DateTime.Today.AddMonths(3);
-
         private string BaseCurrencyName { get; set; } = Currency.EUR.ToString();
-
         private string ComparingCurrencyName { get; set; } = Currency.PLN.ToString();
-
         private bool ShouldShowMarkers { get; set; } = false;
-
         private EjsSpinner ChartLoader { get; set; }
 
         [Inject]

@@ -34,6 +34,8 @@ namespace ExchangeAdvisor.Domain.Values
 
         public override int GetHashCode() => (Base, Comparing).GetHashCode();
 
+        public override string ToString() => $"{Base} - {Comparing}";
+
         public static bool operator ==(CurrencyPair left, CurrencyPair right) => left.Equals(right);
 
         public static bool operator ==(CurrencyPair left, (Currency @base, Currency comparing) right) => left.Equals(right);

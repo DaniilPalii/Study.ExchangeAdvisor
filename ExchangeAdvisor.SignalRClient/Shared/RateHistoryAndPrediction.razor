@@ -55,11 +55,29 @@
                      Placeholder="Comparing currency"
                      Width="80px">
     </EjsDropDownList>
-    <EjsButton @onclick="@RefreshRatesAsync" CssClass="e-flat">Refresh</EjsButton>
+    <EjsButton @onclick="@RefreshAsync" CssClass="e-flat">Refresh</EjsButton>
 </div>
 <div>
     <EjsCheckBox Label="Show markers" @bind-Checked="@ShouldShowMarkers"></EjsCheckBox>
 </div>
+<EjsGrid DataSource="@SavedForecastsMetadata">
+    <GridColumns>
+        <GridColumn Field="@nameof(RateForecastMetadata.CreationDay)"
+                    HeaderText="Creation day"
+                    Width="120"
+                    Type="ColumnType.Date"
+                    Format="d">
+        </GridColumn>
+        <GridColumn Field="@nameof(RateForecastMetadata.CurrencyPair)"
+                    HeaderText="Currency pair"
+                    Width="120">
+        </GridColumn>
+        <GridColumn Field="@nameof(RateForecastMetadata.Description)" 
+                    HeaderText="Description" 
+                    Width="120">
+        </GridColumn>
+    </GridColumns>
+</EjsGrid>
 
 <style>
     #@ChartId .e-spinner-pane {
