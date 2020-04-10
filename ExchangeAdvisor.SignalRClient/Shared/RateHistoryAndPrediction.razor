@@ -60,7 +60,7 @@
 <div>
     <EjsCheckBox Label="Show markers" @bind-Checked="@ShouldShowMarkers"></EjsCheckBox>
 </div>
-<EjsGrid DataSource="@SavedForecastsMetadata">
+<EjsGrid DataSource="@SavedForecastsMetadata" Width="1000">
     <GridColumns>
         <GridColumn Field="@nameof(RateForecastMetadata.CreationDay)"
                     HeaderText="Creation day"
@@ -72,10 +72,7 @@
                     HeaderText="Currency pair"
                     Width="120">
         </GridColumn>
-        <GridColumn Field="@nameof(RateForecastMetadata.Description)" 
-                    HeaderText="Description" 
-                    Width="120">
-        </GridColumn>
+        <GridColumn Field="@nameof(RateForecastMetadata.Description)" HeaderText="Description"></GridColumn>
     </GridColumns>
 </EjsGrid>
 
