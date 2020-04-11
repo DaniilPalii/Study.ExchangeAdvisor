@@ -1,0 +1,16 @@
+﻿<SfDropDownList @bind-Value="@BaseCurrencyName"
+                DataSource="@CurrencyNames"
+                TValue="string"
+                TItem="string"
+                Placeholder="Base currency"
+                Width="80px">
+    <DropDownListEvents TValue="string" ValueChange="@HandleDropDownValueChange"></DropDownListEvents>
+</SfDropDownList>
+<SfDropDownList @bind-Value="@ComparingCurrencyName"
+                DataSource="@CurrencyNames"
+                TValue="string"
+                TItem="string"
+                Placeholder="Comparing currency"
+                Width="80px">
+    <DropDownListEvents TValue="string" ValueChange="@HandleDropDownValueChange"></DropDownListEvents>
+</SfDropDownList>

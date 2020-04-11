@@ -44,20 +44,7 @@
                         MinDays="1"
                         StrictMode="true">
     </SfDateRangePicker>
-    <SfDropDownList @bind-Value="@BaseCurrencyName"
-                     DataSource="@Currencies"
-                     TValue="string"
-                     TItem="string"
-                     Placeholder="Base currency"
-                     Width="80px">
-    </SfDropDownList>
-    <SfDropDownList @bind-Value="@ComparingCurrencyName"
-                     DataSource="@Currencies"
-                     TValue="string"
-                     TItem="string"
-                     Placeholder="Comparing currency"
-                     Width="80px">
-    </SfDropDownList>
+    <CurrencyPairSelector @bind-Value="@CurrencyPair"></CurrencyPairSelector>
     <SfButton @onclick="@RefreshAsync" CssClass="e-flat">Refresh</SfButton>
 </div>
 <div class="mt-4">
