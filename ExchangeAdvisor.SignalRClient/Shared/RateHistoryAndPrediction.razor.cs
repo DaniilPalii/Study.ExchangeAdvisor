@@ -7,17 +7,16 @@ using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;
 using Microsoft.AspNetCore.Components;
-using Syncfusion.EJ2.Blazor.Spinner;
+using Syncfusion.Blazor.Spinner;
 
 namespace ExchangeAdvisor.SignalRClient.Shared
 {
     public partial class RateHistoryAndPrediction : ComponentBase
     {
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            ChartLoader = new EjsSpinner();
-
-            await RefreshAsync();
+            if (firstRender)
+                await RefreshAsync();
         }
 
         private async Task RefreshAsync()
@@ -85,7 +84,7 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         private string BaseCurrencyName { get; set; } = Currency.EUR.ToString();
         private string ComparingCurrencyName { get; set; } = Currency.PLN.ToString();
         private bool ShouldShowMarkers { get; set; } = false;
-        private EjsSpinner ChartLoader { get; set; }
+        private SfSpinner ChartLoader { get; set; } = new SfSpinner();
 
         [Inject]
         private IRateService RateService { get; set; }
