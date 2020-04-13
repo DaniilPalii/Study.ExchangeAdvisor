@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29424.173
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.Domain", "ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj", "{1C1155AB-EC37-47FF-A14D-3F83F5DA6BE5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.Tests.UnitTests.DomainTests", "ExchangeAdvisor.Tests.UnitTests.DomainTests\ExchangeAdvisor.Tests.UnitTests.DomainTests.csproj", "{F5D10002-3F4C-4A8F-9151-C5C3347A6385}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.Tests.UnitTests.DomainTests", "Tests\ExchangeAdvisor.Tests.UnitTests.DomainTests\ExchangeAdvisor.Tests.UnitTests.DomainTests.csproj", "{F5D10002-3F4C-4A8F-9151-C5C3347A6385}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExchangeAdvisor.SignalRClient", "ExchangeAdvisor.SignalRClient\ExchangeAdvisor.SignalRClient.csproj", "{B7DDE354-FEB5-45B8-8540-68BB545EA857}"
 EndProject
@@ -19,6 +19,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExchangeAdvisor.DBMigrationGenerator", "ExchangeAdvisor.DBMigrationGenerator\ExchangeAdvisor.DBMigrationGenerator.csproj", "{2D74C339-C051-45F6-972A-4FBB7BD5C655}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{7412F5BA-1E20-4E4B-8FFA-5A5E1D4EFFE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -56,5 +58,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {40F56472-1620-40F0-BEDF-9005CB060419}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F5D10002-3F4C-4A8F-9151-C5C3347A6385} = {7412F5BA-1E20-4E4B-8FFA-5A5E1D4EFFE5}
 	EndGlobalSection
 EndGlobal

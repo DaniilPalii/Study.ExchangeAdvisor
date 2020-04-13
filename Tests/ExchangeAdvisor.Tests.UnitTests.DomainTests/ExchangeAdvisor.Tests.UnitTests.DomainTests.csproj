@@ -15,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
+      <ProjectReference Include="..\..\ExchangeAdvisor.Domain\ExchangeAdvisor.Domain.csproj" />
     </ItemGroup>
 
 </Project>
