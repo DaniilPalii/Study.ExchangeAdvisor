@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;
@@ -25,30 +24,12 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
         public async Task RefreshSavedDataIfNeed(CurrencyPair currencyPair)
         {
-            if (await historyRepository.ExistsAsync(currencyPair))
+            var missedHistoryRange = await GetMissedHistoryRangeAsync(currencyPair);
+            if (missedHistoryRange != null)
             {
-                var lastHistoricalDayAsync = await historyRepository.GetLastDayAsync(currencyPair);
-
-                if (lastHistoricalDayAsync < DateTime.Today)
-                {
-                    var webRateHistory = await webHistoryFetcher.FetchAsync(HistoricalDateRange, currencyPair);
-                    webRateHistory.CalculateRates();
-
-                    if (webRateHistory.Rates.Max(r => r.Day) > lastHistoricalDayAsync) // TODO: fetch from web only latest day
-                    {
-                        await historyRepository.AddOrUpdateAsync(webRateHistory);
-                        
-                        var updatedHistory = await GetHistoryAsync(currencyPair);
-                        var forecast = await forecaster.ForecastAsync(updatedHistory, ForecastingDateRange);
-                        await forecastRepository.AddAsync(forecast);
-                    }
-                }
-            }
-            else
-            {
-                var webRateHistory = await webHistoryFetcher.FetchAsync(HistoricalDateRange, currencyPair);
+                var webRateHistory = await webHistoryFetcher.FetchAsync(missedHistoryRange.Value, currencyPair);
                 await historyRepository.AddOrUpdateAsync(webRateHistory);
-                
+
                 var updatedHistory = await GetHistoryAsync(currencyPair);
                 var forecast = await forecaster.ForecastAsync(updatedHistory, ForecastingDateRange);
                 await forecastRepository.AddAsync(forecast);
@@ -82,9 +63,20 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             return forecastRepository.GetAsync(currencyPair, creationDay);
         }
 
-        private DateRange ForecastingDateRange => DateRange.FromToday().Until(configurationReader.ForecastingOffset);
+        private async Task<DateRange?> GetMissedHistoryRangeAsync(CurrencyPair currencyPair)
+        {
+            if (!await historyRepository.ExistsAsync(currencyPair))
+                return DateRange.FromMinDate().UntilToday();
+            
+            var lastHistoricalDay = await historyRepository.GetLastDayAsync(currencyPair);
+            if (lastHistoricalDay < DateTime.Today
+                && await webHistoryFetcher.GetLatestRateDate(currencyPair) > lastHistoricalDay)
+                return DateRange.From(lastHistoricalDay).UntilToday();
 
-        private DateRange HistoricalDateRange => DateRange.FromMinDate().UntilToday();
+            return null;
+        }
+
+        private DateRange ForecastingDateRange => DateRange.FromToday().Until(configurationReader.ForecastingOffset);
 
         private readonly IConfigurationReader configurationReader;
         private readonly IRateForecaster forecaster;

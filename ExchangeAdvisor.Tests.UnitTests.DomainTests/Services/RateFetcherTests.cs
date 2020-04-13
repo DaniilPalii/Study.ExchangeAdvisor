@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using ExchangeAdvisor.Domain.Services.Implementation;
+using ExchangeAdvisor.Domain.Services.Implementation.Web;
 using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;
 using FluentAssertions;

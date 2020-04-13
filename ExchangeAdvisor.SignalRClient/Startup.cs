@@ -2,6 +2,7 @@ using ExchangeAdvisor.DB.Migrations;
 using ExchangeAdvisor.DB.Repositories;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Services.Implementation;
+using ExchangeAdvisor.Domain.Services.Implementation.Web;
 using ExchangeAdvisor.ML;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
