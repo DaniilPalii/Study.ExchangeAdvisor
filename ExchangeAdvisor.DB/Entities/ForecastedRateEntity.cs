@@ -1,9 +1,11 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using ExchangeAdvisor.Domain.Values.Rate;
 
 namespace ExchangeAdvisor.DB.Entities
 {
-    public class ForecastRateEntity : EntityBase
+    [Table(name: "ForecastedRate")]
+    public class ForecastedRateEntity : EntityBase
     {
         public DateTime Day { get; set; }
 
@@ -11,14 +13,14 @@ namespace ExchangeAdvisor.DB.Entities
         
         public RateForecastEntity Forecast { get; set; }
 
-        public ForecastRateEntity() { }
+        public ForecastedRateEntity() { }
 
-        public ForecastRateEntity(Rate rate, RateForecastEntity rateForecastEntity) : this(rate)
+        public ForecastedRateEntity(Rate rate, RateForecastEntity rateForecastEntity) : this(rate)
         {
             Forecast = rateForecastEntity;
         }
 
-        public ForecastRateEntity(Rate rate)
+        public ForecastedRateEntity(Rate rate)
         {
             Day = rate.Day;
             Value = rate.Value;

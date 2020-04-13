@@ -7,9 +7,10 @@ using ExchangeAdvisor.Domain.Values.Rate;
 
 namespace ExchangeAdvisor.DB.Entities
 {
+    [Table(name: "RateForecast")]
     public class RateForecastEntity : EntityBase
     {
-        public ICollection<ForecastRateEntity> Rates { get; set; }
+        public ICollection<ForecastedRateEntity> Rates { get; set; }
 
         [Column(TypeName = ColumnTypeName.Currency)]
         public Currency BaseCurrency { get; set; }
@@ -25,7 +26,7 @@ namespace ExchangeAdvisor.DB.Entities
 
         public RateForecastEntity(RateForecast forecast)
         {
-            Rates = forecast.Rates.Select(r => new ForecastRateEntity(r)).ToArray();
+            Rates = forecast.Rates.Select(r => new ForecastedRateEntity(r)).ToArray();
             BaseCurrency = forecast.CurrencyPair.Base;
             ComparingCurrency = forecast.CurrencyPair.Comparing;
             CreationDay = forecast.CreationDay;

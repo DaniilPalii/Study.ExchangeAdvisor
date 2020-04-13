@@ -10,18 +10,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ExchangeAdvisor.DB.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20200408120656_InitialMigration")]
-    partial class InitialMigration
+    [Migration("001_InitialMigration")]
+    partial class _001_InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "3.1.2")
+                .HasAnnotation("ProductVersion", "3.1.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("ExchangeAdvisor.DB.Entities.ForecastRateEntity", b =>
+            modelBuilder.Entity("ExchangeAdvisor.DB.Entities.ForecastedRateEntity", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -41,7 +41,7 @@ namespace ExchangeAdvisor.DB.Migrations
 
                     b.HasIndex("ForecastId");
 
-                    b.ToTable("ForecastRate");
+                    b.ToTable("ForecastedRate");
                 });
 
             modelBuilder.Entity("ExchangeAdvisor.DB.Entities.HistoricalRateEntity", b =>
@@ -113,7 +113,7 @@ namespace ExchangeAdvisor.DB.Migrations
                     b.ToTable("RateHistory");
                 });
 
-            modelBuilder.Entity("ExchangeAdvisor.DB.Entities.ForecastRateEntity", b =>
+            modelBuilder.Entity("ExchangeAdvisor.DB.Entities.ForecastedRateEntity", b =>
                 {
                     b.HasOne("ExchangeAdvisor.DB.Entities.RateForecastEntity", "Forecast")
                         .WithMany("Rates")

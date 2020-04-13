@@ -1,8 +1,10 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 using ExchangeAdvisor.Domain.Values.Rate;
 
 namespace ExchangeAdvisor.DB.Entities
 {
+    [Table(name: "HistoricalRate")]
     public class HistoricalRateEntity : EntityBase
     {
         public DateTime Day { get; set; }

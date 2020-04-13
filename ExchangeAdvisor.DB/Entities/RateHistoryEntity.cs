@@ -6,6 +6,7 @@ using ExchangeAdvisor.Domain.Values.Rate;
 
 namespace ExchangeAdvisor.DB.Entities
 {
+    [Table(name: "RateHistory")]
     public class RateHistoryEntity : EntityBase
     {
         public ICollection<HistoricalRateEntity> Rates { get; set; }

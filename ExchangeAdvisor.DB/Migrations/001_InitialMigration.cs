@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ExchangeAdvisor.DB.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class _001_InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -38,7 +38,7 @@ namespace ExchangeAdvisor.DB.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ForecastRate",
+                name: "ForecastedRate",
                 columns: table => new
                 {
                     Id = table.Column<long>(nullable: false)
@@ -49,9 +49,9 @@ namespace ExchangeAdvisor.DB.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ForecastRate", x => x.Id);
+                    table.PrimaryKey("PK_ForecastedRate", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ForecastRate_RateForecast_ForecastId",
+                        name: "FK_ForecastedRate_RateForecast_ForecastId",
                         column: x => x.ForecastId,
                         principalTable: "RateForecast",
                         principalColumn: "Id",
@@ -80,8 +80,8 @@ namespace ExchangeAdvisor.DB.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_ForecastRate_ForecastId",
-                table: "ForecastRate",
+                name: "IX_ForecastedRate_ForecastId",
+                table: "ForecastedRate",
                 column: "ForecastId");
 
             migrationBuilder.CreateIndex(
@@ -93,7 +93,7 @@ namespace ExchangeAdvisor.DB.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ForecastRate");
+                name: "ForecastedRate");
 
             migrationBuilder.DropTable(
                 name: "HistoricalRate");

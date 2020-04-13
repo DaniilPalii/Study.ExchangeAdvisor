@@ -6,14 +6,13 @@ namespace ExchangeAdvisor.DB.Context
 {
     public class DatabaseContext : DbContext
     {
-        // TODO: use plural names if possible
-        public DbSet<RateHistoryEntity> RateHistory { get; set; }
+        public DbSet<RateHistoryEntity> RateHistories { get; set; }
 
-        public DbSet<RateForecastEntity> RateForecast { get; set; }
+        public DbSet<RateForecastEntity> RateForecasts { get; set; }
 
-        public DbSet<HistoricalRateEntity> HistoricalRate { get; set; }
+        public DbSet<HistoricalRateEntity> HistoricalRates { get; set; }
         
-        public DbSet<ForecastRateEntity> ForecastRate { get; set; }
+        public DbSet<ForecastedRateEntity> ForecastedRates { get; set; }
 
         public DatabaseContext(string connectionString)
         {

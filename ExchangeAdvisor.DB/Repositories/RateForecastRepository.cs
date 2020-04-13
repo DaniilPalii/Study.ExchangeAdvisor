@@ -36,7 +36,7 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            var maxCreationDay = await dbc.RateForecast.Where(EqualsBy(currencyPair)).MaxAsync(f => f.CreationDay);
+            var maxCreationDay = await dbc.RateForecasts.Where(EqualsBy(currencyPair)).MaxAsync(f => f.CreationDay);
             
             return (await GetForecastWithRatesAsync(dbc, currencyPair, maxCreationDay)).ToRateForecast();
         }
@@ -55,7 +55,7 @@ namespace ExchangeAdvisor.DB.Repositories
             if (await ExistsAsync(dbc, forecast.CurrencyPair, forecast.CreationDay))
                 throw new InvalidOperationException($"Can't add duplicated forecast ({forecast.Metadata})");
 
-            await dbc.RateForecast.AddAsync(new RateForecastEntity(forecast));
+            await dbc.RateForecasts.AddAsync(new RateForecastEntity(forecast));
 
             await dbc.SaveChangesAsync();
         }
@@ -64,7 +64,7 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            return await dbc.RateForecast.Where(EqualsBy(currencyPair))
+            return await dbc.RateForecasts.Where(EqualsBy(currencyPair))
                 .Select(f => f.ToRateForecastMetadata())
                 .ToArrayAsync();
         }
@@ -86,7 +86,7 @@ namespace ExchangeAdvisor.DB.Repositories
             CurrencyPair currencyPair,
             DateTime creationDay)
         {
-            return await dbc.RateForecast.AnyAsync(EqualsBy(currencyPair, creationDay));
+            return await dbc.RateForecasts.AnyAsync(EqualsBy(currencyPair, creationDay));
         }
 
         private static async Task<RateForecastEntity> GetForecastWithoutRatesAsync(
@@ -94,7 +94,7 @@ namespace ExchangeAdvisor.DB.Repositories
             CurrencyPair currencyPair,
             DateTime creationDay)
         {
-            return await dbc.RateForecast.SingleOrDefaultAsync(EqualsBy(currencyPair, creationDay));
+            return await dbc.RateForecasts.SingleOrDefaultAsync(EqualsBy(currencyPair, creationDay));
         }
 
         private static Task<RateForecastEntity> GetForecastWithRatesAsync(
@@ -102,7 +102,7 @@ namespace ExchangeAdvisor.DB.Repositories
             CurrencyPair currencyPair,
             DateTime creationDay)
         {
-            return dbc.RateForecast.Include(f => f.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair, creationDay));
+            return dbc.RateForecasts.Include(f => f.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair, creationDay));
         }
 
         private static Expression<Func<RateForecastEntity, bool>> EqualsBy(CurrencyPair currencyPair)

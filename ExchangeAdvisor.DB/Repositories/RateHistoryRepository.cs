@@ -21,16 +21,16 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            return await dbc.RateHistory.AnyAsync(EqualsBy(currencyPair));
+            return await dbc.RateHistories.AnyAsync(EqualsBy(currencyPair));
         }
 
         public async Task<DateTime> GetLastDayAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            var history = await dbc.RateHistory.SingleAsync(EqualsBy(currencyPair));
+            var history = await dbc.RateHistories.SingleAsync(EqualsBy(currencyPair));
 
-            return await dbc.HistoricalRate.Where(r => r.History.Id == history.Id).MaxAsync(r => r.Day);
+            return await dbc.HistoricalRates.Where(r => r.History.Id == history.Id).MaxAsync(r => r.Day);
         }
 
         public async Task<RateHistory> GetAsync(CurrencyPair currencyPair)
@@ -47,7 +47,7 @@ namespace ExchangeAdvisor.DB.Repositories
             var existingHistory = await GetFullHistoryAsync(dbc, history.CurrencyPair);
 
             if (existingHistory == null)
-                await dbc.RateHistory.AddAsync(new RateHistoryEntity(history));
+                await dbc.RateHistories.AddAsync(new RateHistoryEntity(history));
             else
                 Update(dbc, existingHistory, history);
 
@@ -56,7 +56,7 @@ namespace ExchangeAdvisor.DB.Repositories
 
         private static Task<RateHistoryEntity> GetFullHistoryAsync(DatabaseContext dbc, CurrencyPair currencyPair)
         {
-            return dbc.RateHistory.Include(h => h.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair));
+            return dbc.RateHistories.Include(h => h.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair));
         }
 
         private static void Update(DatabaseContext dbc, RateHistoryEntity existingHistory, RateHistory newHistory)
