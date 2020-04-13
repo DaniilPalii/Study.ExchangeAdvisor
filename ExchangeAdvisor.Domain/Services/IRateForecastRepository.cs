@@ -12,10 +12,14 @@ namespace ExchangeAdvisor.Domain.Services
         
         Task<RateForecast> GetAsync(CurrencyPair currencyPair, DateTime creationDay);
 
-        Task<RateForecast> AddOrUpdateAsync(RateForecast forecast);
+        Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair);
+
+        Task<RateForecastMetadata> GetMetadataAsync(CurrencyPair currencyPair, DateTime creationDay);
         
-        Task<IEnumerable<RateForecastMetadata>> GetAllForecastsMetadataAsync(CurrencyPair currencyPair);
+        Task<IEnumerable<RateForecastMetadata>> GetMetadatasAsync(CurrencyPair currencyPair);
+
+        Task AddAsync(RateForecast forecast);
         
-        Task<RateForecastMetadata> UpdateMetadataAsync(RateForecastMetadata metadata);
+        Task UpdateMetadataAsync(RateForecastMetadata metadata);
     }
 }

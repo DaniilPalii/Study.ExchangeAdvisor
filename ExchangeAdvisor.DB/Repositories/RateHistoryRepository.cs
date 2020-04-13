@@ -40,7 +40,7 @@ namespace ExchangeAdvisor.DB.Repositories
             return (await GetFullHistoryAsync(dbc, currencyPair)).ToRateHistory();
         }
 
-        public async Task<RateHistory> AddOrUpdateAsync(RateHistory history)
+        public async Task AddOrUpdateAsync(RateHistory history)
         {
             await using var dbc = CreateDatabaseContext();
 
@@ -52,8 +52,6 @@ namespace ExchangeAdvisor.DB.Repositories
                 Update(dbc, existingHistory, history);
 
             await dbc.SaveChangesAsync();
-
-            return (await GetFullHistoryAsync(dbc, history.CurrencyPair)).ToRateHistory();
         }
 
         private static Task<RateHistoryEntity> GetFullHistoryAsync(DatabaseContext dbc, CurrencyPair currencyPair)

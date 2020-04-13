@@ -1,7 +1,7 @@
 ﻿@using ExchangeAdvisor.Domain.Values.Rate
 @using ChartValueType = Syncfusion.Blazor.Charts.ValueType
 
-<h1>Exchange rate history and prediction</h1>
+<h1>Exchange rate history and forecast</h1>
 <div>
     <SfChart ID="@ChartId">
         <ChartPrimaryXAxis Title="Day" ValueType="ChartValueType.DateTime"></ChartPrimaryXAxis>
@@ -36,7 +36,6 @@
     <SfSpinner @ref="ChartLoader" Target="@ChartLoaderTargetCssSelector"></SfSpinner>
 </div>
 <div>
-    <h6>Rates</h6>
     <SfDateRangePicker @bind-StartDate="@StartDate"
                         @bind-EndDate="@EndDate"
                         Width="180px"
@@ -45,7 +44,7 @@
                         StrictMode="true">
     </SfDateRangePicker>
     <CurrencyPairSelector @bind-Value="@CurrencyPair"></CurrencyPairSelector>
-    <SfButton @onclick="@RefreshAsync" CssClass="e-flat">Refresh</SfButton>
+    <SfButton @onclick="@RefreshDataAsync" CssClass="e-flat">Refresh</SfButton>
 </div>
 <div class="mt-4">
     <h6>Saved forecasts</h6>

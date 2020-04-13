@@ -33,7 +33,7 @@ namespace ExchangeAdvisor.SignalRClient
             services.AddScoped<IRateForecastRepository, RateForecastRepository>();
             services.AddScoped<IWebRateHistoryFetcher, WebRateHistoryFetcher>();
             services.AddScoped<IRateForecaster, RateForecaster>();
-            services.AddScoped<IRateService, CacheableRateService>();
+            services.AddScoped<IRateService, RateService>();
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment environment)

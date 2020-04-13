@@ -12,24 +12,25 @@ namespace ExchangeAdvisor.SignalRClient.Shared
 {
     public partial class RateHistoryAndPrediction : ComponentBase
     {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnInitializedAsync()
         {
-            if (firstRender)
-                await RefreshAsync();
+            await RefreshDataAsync();
         }
 
-        private async Task RefreshAsync()
+        private async Task RefreshDataAsync()
         {
-            HistoricalRates = Array.Empty<Rate>();
-            ForecastRates = Array.Empty<Rate>();
+            await RateService.RefreshSavedDataIfNeed(CurrencyPair);
+            await Task.WhenAll(
+                FetchHistoryAndActualForecastShowingLoaderAsync(),
+                FetchSavedForecastsMetadataAsync());
+        }
 
+        private async Task FetchHistoryAndActualForecastShowingLoaderAsync()
+        {
             ShowChartLoader();
             try
             {
-                await Task.WhenAll(
-                    FetchHistoricalRatesAsync(),
-                    FetchActualForecastRatesAsync(),
-                    FetchSavedForecastsMetadataAsync());
+                await Task.WhenAll(FetchHistoricalRatesAsync(), FetchActualForecastRatesAsync());
             }
             finally
             {
@@ -46,22 +47,22 @@ namespace ExchangeAdvisor.SignalRClient.Shared
 
         private async Task FetchActualForecastRatesAsync()
         {
-            var forecast = await RateService.GetActualForecastAsync(CurrencyPair);
+            var forecast = await RateService.GetNewestForecastAsync(CurrencyPair);
 
             ForecastRates = forecast.Rates.OrderBy(r => r.Day).ToArray();
         }
 
         private async Task FetchSavedForecastsMetadataAsync()
         {
-            var forecastsMetadata = await RateService.GetAllSavedForecastsMetadataAsync(CurrencyPair);
+            var forecastsMetadata = await RateService.GetForecastsMetadataAsync(CurrencyPair);
 
             SavedForecastsMetadata = forecastsMetadata.OrderBy(m => m.CreationDay).ToArray();
 
-            foreach (var a in SavedForecastsMetadata)
+            foreach (var a in SavedForecastsMetadata) // TODO: allow edit description
                 a.Description = "Some description";
         }
 
-        private void ShowChartLoader()
+        private void ShowChartLoader() // TODO: move chart to separate component
         {
             ChartLoader.ShowSpinner(ChartLoaderTargetCssSelector);
         }
@@ -71,7 +72,7 @@ namespace ExchangeAdvisor.SignalRClient.Shared
             ChartLoader.HideSpinner(ChartLoaderTargetCssSelector);
         }
 
-        private CurrencyPair CurrencyPair { get; set; } = new CurrencyPair(Currency.EUR, Currency.PLN);
+        private CurrencyPair CurrencyPair { get; set; } = new CurrencyPair(Currency.USD, Currency.PLN);
         private IReadOnlyCollection<Rate> HistoricalRates { get; set; } = Array.Empty<Rate>();
         private IReadOnlyCollection<Rate> ForecastRates { get; set; } = Array.Empty<Rate>();
         private IReadOnlyCollection<RateForecastMetadata> SavedForecastsMetadata { get; set; }

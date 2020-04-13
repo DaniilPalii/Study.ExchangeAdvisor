@@ -4,22 +4,27 @@ namespace ExchangeAdvisor.Domain.Values.Rate
 {
     public class RateForecastMetadata
     {
-        public DateTime CreationDay { get; }
-
         public CurrencyPair CurrencyPair { get; }
+
+        public DateTime CreationDay { get; }
 
         public string Description { get; set; }
 
-        public RateForecastMetadata(DateTime creationDay, CurrencyPair currencyPair, string description)
-            : this(creationDay, currencyPair)
+        public RateForecastMetadata(CurrencyPair currencyPair, DateTime creationDay, string description)
+            : this(currencyPair, creationDay)
         {
             Description = description;
         }
 
-        public RateForecastMetadata(DateTime creationDay, CurrencyPair currencyPair)
+        public RateForecastMetadata(CurrencyPair currencyPair, DateTime creationDay)
         {
             CreationDay = creationDay;
             CurrencyPair = currencyPair;
+        }
+
+        public override string ToString()
+        {
+            return $"{nameof(CurrencyPair)}: {CurrencyPair}, {nameof(CreationDay)}: {CreationDay}";
         }
     }
 }

@@ -44,7 +44,7 @@ namespace ExchangeAdvisor.DB.Entities
         {
             var currencyPair = new CurrencyPair(BaseCurrency, ComparingCurrency);
 
-            return new RateForecastMetadata(CreationDay, currencyPair, Description);
+            return new RateForecastMetadata(currencyPair, CreationDay, Description);
         }
     }
 }
