@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ExchangeAdvisor.Domain.Helpers;
+using ExchangeAdvisor.Domain.Extensions;
 using ExchangeAdvisor.Domain.Values;
 using Microsoft.AspNetCore.Components;
 
@@ -13,8 +13,8 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         {
             get
             {
-                var baseCurrency = Converter.ToCurrency(BaseCurrencyName);
-                var comparingCurrency = Converter.ToCurrency(ComparingCurrencyName);
+                var baseCurrency = CurrencyExtensions.ToCurrency(BaseCurrencyName);
+                var comparingCurrency = CurrencyExtensions.ToCurrency(ComparingCurrencyName);
 
                 return new CurrencyPair(baseCurrency, comparingCurrency);
             }

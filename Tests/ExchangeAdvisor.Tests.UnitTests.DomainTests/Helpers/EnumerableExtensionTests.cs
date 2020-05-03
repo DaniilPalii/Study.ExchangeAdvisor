@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ExchangeAdvisor.Domain.Helpers;
+using ExchangeAdvisor.Domain.Extensions;
 using NUnit.Framework;
 
 namespace ExchangeAdvisor.Tests.UnitTests.DomainTests.Helpers

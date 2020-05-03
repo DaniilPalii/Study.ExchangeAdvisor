@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using ExchangeAdvisor.Domain.Helpers;
+using ExchangeAdvisor.Domain.Extensions;
 using ExchangeAdvisor.Domain.Values.Rate;
 using Microsoft.ML;
 

@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using ExchangeAdvisor.DB.Context;
 using ExchangeAdvisor.DB.Entities;
-using ExchangeAdvisor.Domain.Helpers;
+using ExchangeAdvisor.Domain.Extensions;
 using ExchangeAdvisor.Domain.Services;
 using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;

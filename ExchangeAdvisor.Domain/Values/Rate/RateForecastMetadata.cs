@@ -24,7 +24,7 @@ namespace ExchangeAdvisor.Domain.Values.Rate
 
         public override string ToString()
         {
-            return $"{nameof(CurrencyPair)}: {CurrencyPair}, {nameof(CreationDay)}: {CreationDay}";
+            return $"{nameof(CurrencyPair)}: {CurrencyPair}, {nameof(CreationDay)}: {CreationDay:d}";
         }
     }
 }

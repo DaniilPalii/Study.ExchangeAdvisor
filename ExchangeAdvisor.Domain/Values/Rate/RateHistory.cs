@@ -4,7 +4,7 @@ namespace ExchangeAdvisor.Domain.Values.Rate
 {
     public class RateHistory : RateCollectionBase
     {
-        public RateHistory(IEnumerable<Values.Rate.Rate> rates, CurrencyPair currencyPair)
+        public RateHistory(IEnumerable<Rate> rates, CurrencyPair currencyPair)
             : base(rates, currencyPair)
         { }
     }

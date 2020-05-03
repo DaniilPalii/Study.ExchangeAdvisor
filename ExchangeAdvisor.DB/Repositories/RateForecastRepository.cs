@@ -48,6 +48,7 @@ namespace ExchangeAdvisor.DB.Repositories
             return (await GetForecastWithoutRatesAsync(dbc, currencyPair, creationDay)).ToRateForecastMetadata();
         }
 
+        // TODO: restore add or update to make code more safety
         public async Task AddAsync(RateForecast forecast)
         {
             await using var dbc = CreateDatabaseContext();

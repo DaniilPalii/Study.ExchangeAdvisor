@@ -18,7 +18,7 @@ namespace ExchangeAdvisor.Domain.Values.Rate
         }
 
         public RateForecast(
-            IEnumerable<Values.Rate.Rate> rates,
+            IReadOnlyCollection<Rate> rates,
             CurrencyPair currencyPair,
             DateTime creationDay,
             string description)
@@ -27,11 +27,11 @@ namespace ExchangeAdvisor.Domain.Values.Rate
             Description = description;
         }
         
-        public RateForecast(IEnumerable<Values.Rate.Rate> rates, CurrencyPair currencyPair, DateTime creationDay)
+        public RateForecast(IEnumerable<Rate> rates, CurrencyPair currencyPair, DateTime creationDay)
             : this(rates, new RateForecastMetadata(currencyPair, creationDay))
         { }
 
-        public RateForecast(IEnumerable<Values.Rate.Rate> rates, RateForecastMetadata metadata) : base(rates)
+        public RateForecast(IEnumerable<Rate> rates, RateForecastMetadata metadata) : base(rates)
         {
             Metadata = metadata;
         }

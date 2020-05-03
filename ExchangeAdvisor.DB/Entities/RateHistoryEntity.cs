@@ -19,11 +19,11 @@ namespace ExchangeAdvisor.DB.Entities
 
         public RateHistoryEntity() { }
 
-        public RateHistoryEntity(RateHistory history)
+        public RateHistoryEntity(RateCollectionBase rateCollection)
         {
-            Rates = history.Rates.Select(r => new HistoricalRateEntity(r)).ToArray();
-            BaseCurrency = history.CurrencyPair.Base;
-            ComparingCurrency = history.CurrencyPair.Comparing;
+            Rates = rateCollection.Rates.Select(r => new HistoricalRateEntity(r)).ToArray();
+            BaseCurrency = rateCollection.CurrencyPair.Base;
+            ComparingCurrency = rateCollection.CurrencyPair.Comparing;
         }
 
         public RateHistory ToRateHistory()
