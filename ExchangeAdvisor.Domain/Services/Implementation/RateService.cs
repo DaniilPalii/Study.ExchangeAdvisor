@@ -73,7 +73,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
                 && await webHistoryFetcher.GetLatestRateDate(currencyPair) > lastHistoricalDay)
                 return DateRange.From(lastHistoricalDay).UntilToday();
 
-            return null;
+            return null; // TODO: return empty range
         }
 
         private DateRange ForecastingDateRange => DateRange.FromToday().Until(configurationReader.ForecastingOffset);
