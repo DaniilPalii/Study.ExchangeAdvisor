@@ -1,0 +1,16 @@
+﻿@using ExchangeAdvisor.Domain.Values.Rate
+<SfGrid DataSource="@Data" Width="1000">
+    <GridColumns>
+        <GridColumn Field="@nameof(RateForecastMetadata.CreationDay)"
+                    HeaderText="Creation day"
+                    Width="120"
+                    Type="ColumnType.Date"
+                    Format="d">
+        </GridColumn>
+        <GridColumn Field="@nameof(RateForecastMetadata.CurrencyPair)"
+                    HeaderText="Currency pair"
+                    Width="120">
+        </GridColumn>
+        <GridColumn Field="@nameof(RateForecastMetadata.Description)" HeaderText="Description"></GridColumn>
+    </GridColumns>
+</SfGrid>

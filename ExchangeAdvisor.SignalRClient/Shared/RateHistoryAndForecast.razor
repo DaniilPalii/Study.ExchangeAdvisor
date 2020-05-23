@@ -1,0 +1,31 @@
+﻿<h1>Exchange rate history and forecast</h1>
+<div>
+    <RateHistoryAndForecastChart History="@History"
+                                 ActualForecast="@ActualForecast"
+                                 OldForecasts="@OldForecasts"
+                                 ShouldShowMarkers="@ShouldChartShowMarkers"
+                                 ShouldShowLoader="@ShouldChartShowLoader">
+    </RateHistoryAndForecastChart>
+</div>
+<div>
+    @* TODO: Remove date picker *@
+    <SfDateRangePicker @bind-StartDate="@StartDate"
+                        @bind-EndDate="@EndDate"
+                        Width="180px"
+                        ShowClearButton="false"
+                        MinDays="1"
+                        StrictMode="true">
+    </SfDateRangePicker>
+    <CurrencyPairSelector @bind-Value="@CurrencyPair"></CurrencyPairSelector>
+    <SfButton @onclick="@RefreshDataAsync" CssClass="e-flat">Refresh</SfButton>
+</div>
+<div class="mt-4">
+    <h6>Saved forecasts</h6>
+    <ForecastMetadataTable @bind-Data="@ForecastsMetadata"></ForecastMetadataTable>
+</div>
+<div class="mt-4">
+    <h6>Chart settings</h6>
+    <SfCheckBox Label="Show markers" @bind-Checked="@ShouldChartShowMarkers"></SfCheckBox>
+</div>
+
+

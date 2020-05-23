@@ -5,7 +5,7 @@ namespace ExchangeAdvisor.Domain.Values.Rate
 {
     public abstract class RateCollectionBase
     {
-        public virtual IEnumerable<Rate> Rates { get; private set; }
+        public virtual IReadOnlyCollection<Rate> Rates { get; }
         
         public virtual CurrencyPair CurrencyPair { get; }
         
@@ -16,14 +16,7 @@ namespace ExchangeAdvisor.Domain.Values.Rate
 
         protected RateCollectionBase(IEnumerable<Rate> rates)
         {
-            Rates = rates;
-        }
-        
-        protected RateCollectionBase() { }
-
-        public void CalculateRates()
-        {
-            Rates = Rates.ToArray();
+            Rates = rates.OrderBy(r => r.Day).ToArray();
         }
     }
 }

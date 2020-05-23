@@ -1,0 +1,34 @@
+﻿@using ChartValueType = Syncfusion.Blazor.Charts.ValueType
+@using ExchangeAdvisor.Domain.Values.Rate
+
+<SfChart ID="@Id">
+    <ChartPrimaryXAxis Title="Day" ValueType="ChartValueType.DateTime"></ChartPrimaryXAxis>
+    <ChartPrimaryYAxis Title="Rate"></ChartPrimaryYAxis>
+    <ChartSeriesCollection>
+        @foreach (var viewModel in rateChartSeriesViewModels)
+        {
+            <ChartSeries Name="@viewModel.Name"
+                         DataSource="@viewModel.DataSource"
+                         YName="@nameof(Rate.Value)"
+                         XName="@nameof(Rate.Day)">
+                <ChartMarker Visible="@ShouldShowMarkers"></ChartMarker>
+            </ChartSeries>
+        }
+    </ChartSeriesCollection>
+    <ChartTooltipSettings Enable="true" Shared="true"></ChartTooltipSettings>
+    <ChartZoomSettings EnableSelectionZooming="true"
+                       EnableMouseWheelZooming="true"
+                       EnablePinchZooming="true"
+                       EnableDeferredZooming="false"
+                       EnableScrollbar="true"
+                       EnablePan="true">
+    </ChartZoomSettings>
+    <ChartLegendSettings Visible="true"></ChartLegendSettings>
+</SfChart>
+<SfSpinner @ref="loader" Target="@LoaderTargetCssSelector"></SfSpinner>
+
+<style>
+    #@Id .e-spinner-pane {
+        tranSform: translateY(-42px);
+    }
+</style>

@@ -9,6 +9,24 @@
     <Content Remove="Components\**" />
     <EmbeddedResource Remove="Components\**" />
     <None Remove="Components\**" />
+    <Content Update="Shared\ForecastMetadataTable.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Compile Update="Shared\ForecastMetadataTable.razor.cs">
+      <DependentUpon>ForecastSelector.razor</DependentUpon>
+    </Compile>
+    <Content Update="Shared\RateHistoryAndForecastChart.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Compile Update="Shared\RateHistoryAndForecastChart.razor.cs">
+      <DependentUpon>RateHistoryAndForecastChart.razor</DependentUpon>
+    </Compile>
+    <Content Update="Shared\RateChart.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Compile Update="Shared\RateChart.razor.cs">
+      <DependentUpon>RateChart.razor</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -16,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Shared\RateHistoryAndPrediction.razor.cs" />
+    <Content Include="Shared\RateHistoryAndForecast.razor.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,6 +19,15 @@ namespace ExchangeAdvisor.Domain.Values.Rate
 
         public RateForecast(
             IReadOnlyCollection<Rate> rates,
+            RateForecastMetadata metadata,
+            string description)
+            : this(rates, metadata)
+        {
+            Description = description;
+        }
+
+        public RateForecast(
+            IReadOnlyCollection<Rate> rates,
             CurrencyPair currencyPair,
             DateTime creationDay,
             string description)
