@@ -2,6 +2,8 @@
 {
     public enum Currency
     {
+        // TODO: remove unsupported currencies
+        // TODO: use dictionary instead of ToString
         AUD,
         BGN,
         BRL,
