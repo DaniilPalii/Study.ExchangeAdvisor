@@ -46,7 +46,7 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         {
             var seriesWithoutColor = rateChartSeriesViewModels.Where(m => string.IsNullOrEmpty(m.ColorHexCode));
 
-            foreach (var (series, color) in seriesWithoutColor.Zip(PossibleColors.RepeatEndlessly()))
+            foreach (var (series, color) in seriesWithoutColor.Zip(Colors.RepeatEndlessly()))
                 series.ColorHexCode = color.ToHexCode();
         }
 
@@ -54,7 +54,7 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         private SfSpinner loader = new SfSpinner();
         private bool shouldShowLoader;
 
-        private static readonly IReadOnlyCollection<Color> PossibleColors = new[]
+        private static readonly IReadOnlyCollection<Color> Colors = new[]
         {
             Color.Blue,
             Color.Green,
