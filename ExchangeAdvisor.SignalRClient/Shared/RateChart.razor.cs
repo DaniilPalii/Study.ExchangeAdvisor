@@ -46,23 +46,22 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         {
             var seriesWithoutColor = rateChartSeriesViewModels.Where(m => string.IsNullOrEmpty(m.ColorHexCode));
 
-            foreach (var (series, color) in seriesWithoutColor.Zip(endlessPalette))
+            foreach (var (series, color) in seriesWithoutColor.Zip(PossibleColors.RepeatEndlessly()))
                 series.ColorHexCode = color.ToHexCode();
         }
 
         private IReadOnlyCollection<ChartSeriesViewModel<Rate>> rateChartSeriesViewModels;
         private SfSpinner loader = new SfSpinner();
         private bool shouldShowLoader;
-        private readonly IEnumerable<Color> endlessPalette = PossibleColors.OrderRandomly().RepeatEndlessly();
 
         private static readonly IReadOnlyCollection<Color> PossibleColors = new[]
         {
-            Color.Green,
             Color.Blue,
+            Color.Green,
             Color.Orange,
             Color.Purple,
-            Color.Red,
             Color.Aqua,
+            Color.Red,
             Color.Chocolate,
             Color.Lime
         };
