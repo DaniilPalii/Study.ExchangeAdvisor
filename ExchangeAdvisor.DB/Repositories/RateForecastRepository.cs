@@ -32,11 +32,22 @@ namespace ExchangeAdvisor.DB.Repositories
             return (await GetForecastWithRatesAsync(dbc, currencyPair, creationDay)).ToRateForecast();
         }
 
+        public async Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair, DateRange dateRange)
+        {
+            await using var dbc = CreateDatabaseContext();
+
+            var maxCreationDay = await GetMaxCreationDay(dbc, currencyPair);
+            var forecast = await dbc.RateForecasts.SingleOrDefaultAsync(EqualsBy(currencyPair, maxCreationDay));
+            forecast.Rates = await dbc.ForecastedRates.Where(EqualsBy(forecast, dateRange)).ToArrayAsync();
+
+            return forecast.ToRateForecast();
+        }
+
         public async Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            var maxCreationDay = await dbc.RateForecasts.Where(EqualsBy(currencyPair)).MaxAsync(f => f.CreationDay);
+            var maxCreationDay = await GetMaxCreationDay(dbc, currencyPair);
             
             return (await GetForecastWithRatesAsync(dbc, currencyPair, maxCreationDay)).ToRateForecast();
         }
@@ -106,19 +117,33 @@ namespace ExchangeAdvisor.DB.Repositories
             return dbc.RateForecasts.Include(f => f.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair, creationDay));
         }
 
+        private static async Task<DateTime> GetMaxCreationDay(DatabaseContext dbc, CurrencyPair currencyPair)
+        {
+            return await dbc.RateForecasts.Where(EqualsBy(currencyPair)).MaxAsync(f => f.CreationDay);
+        }
+
         private static Expression<Func<RateForecastEntity, bool>> EqualsBy(CurrencyPair currencyPair)
         {
-            return forecast => forecast.BaseCurrency == currencyPair.Base
-                && forecast.ComparingCurrency == currencyPair.Comparing;
+            return f => f.BaseCurrency == currencyPair.Base
+                && f.ComparingCurrency == currencyPair.Comparing;
         }
 
         private static Expression<Func<RateForecastEntity, bool>> EqualsBy(
             CurrencyPair currencyPair,
             DateTime creationDay)
         {
-            return forecast => forecast.BaseCurrency == currencyPair.Base
-                && forecast.ComparingCurrency == currencyPair.Comparing
-                && forecast.CreationDay == creationDay;
+            return f => f.BaseCurrency == currencyPair.Base
+                && f.ComparingCurrency == currencyPair.Comparing
+                && f.CreationDay == creationDay;
+        }
+
+        private static Expression<Func<ForecastedRateEntity, bool>> EqualsBy(
+            RateForecastEntity forecast,
+            DateRange dateRange)
+        {
+            return r => r.Forecast.Id == forecast.Id
+                && dateRange.Start <= r.Day.Date
+                && dateRange.End >= r.Day.Date;
         }
     }
 }

@@ -11,6 +11,8 @@ namespace ExchangeAdvisor.Domain.Services
 
         Task<DateTime> GetLastDayAsync(CurrencyPair currencyPair);
         
+        Task<RateHistory> GetAsync(CurrencyPair currencyPair, DateRange dateRange);
+
         Task<RateHistory> GetAsync(CurrencyPair currencyPair);
 
         Task AddOrUpdateAsync(RateHistory history);

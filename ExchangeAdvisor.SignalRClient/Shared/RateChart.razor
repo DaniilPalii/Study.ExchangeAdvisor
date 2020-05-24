@@ -10,7 +10,8 @@
             <ChartSeries Name="@viewModel.Name"
                          DataSource="@viewModel.DataSource"
                          YName="@nameof(Rate.Value)"
-                         XName="@nameof(Rate.Day)">
+                         XName="@nameof(Rate.Day)"
+                         Fill="@viewModel.ColorHexCode">
                 <ChartMarker Visible="@ShouldShowMarkers"></ChartMarker>
             </ChartSeries>
         }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace ExchangeAdvisor.Domain.Values
 {
-    public struct DateRange
+    public readonly struct DateRange
     {
         public readonly DateTime Start;
 
@@ -48,12 +48,7 @@ namespace ExchangeAdvisor.Domain.Values
 
         public DateRange MakeEndingAt(DateTime end) => new DateRange(Start, end);
 
-        public bool Contains(DateTime date)
-        {
-            date = date.Date;
-
-            return Start <= date && End >= date;
-        }
+        public bool Contains(DateTime date) => Start <= date.Date && End >= date.Date;
 
         public override bool Equals(object obj)
         {
@@ -68,24 +63,24 @@ namespace ExchangeAdvisor.Domain.Values
 
         public static bool operator !=(DateRange left, DateRange right) => !(left == right);
 
-        private struct DateRangeFrom : IDateRangeFrom
+        private readonly struct DateRangeFrom : IDateRangeFrom
         {
             public DateRangeFrom(DateTime start)
             {
-                Start = start;
+                this.start = start;
             }
 
             public DateRange UntilMaxDate() => Until(DateTime.MaxValue);
 
             public DateRange UntilToday() => Until(DateTime.Today);
 
-            public DateRange Until(TimeSpan offset) => Until(Start + offset);
+            public DateRange Until(TimeSpan offset) => Until(start + offset);
 
             public DateRange Until(int year, int month, int day) => Until(new DateTime(year, month, day));
 
-            public DateRange Until(DateTime end) => new DateRange(Start, end);
+            public DateRange Until(DateTime end) => new DateRange(start, end);
 
-            private readonly DateTime Start;
+            private readonly DateTime start;
         }
     }
 

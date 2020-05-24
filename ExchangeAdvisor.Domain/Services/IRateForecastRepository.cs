@@ -12,6 +12,8 @@ namespace ExchangeAdvisor.Domain.Services
         
         Task<RateForecast> GetAsync(CurrencyPair currencyPair, DateTime creationDay);
 
+        Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair, DateRange dateRange);
+        
         Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair);
 
         Task<RateForecastMetadata> GetMetadataAsync(CurrencyPair currencyPair, DateTime creationDay);

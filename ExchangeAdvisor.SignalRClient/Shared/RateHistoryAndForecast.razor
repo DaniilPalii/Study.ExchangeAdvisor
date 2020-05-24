@@ -8,13 +8,12 @@
     </RateHistoryAndForecastChart>
 </div>
 <div>
-    @* TODO: Remove date picker *@
     <SfDateRangePicker @bind-StartDate="@StartDate"
-                        @bind-EndDate="@EndDate"
-                        Width="180px"
-                        ShowClearButton="false"
-                        MinDays="1"
-                        StrictMode="true">
+                       @bind-EndDate="@EndDate"
+                       Width="180px"
+                       ShowClearButton="false"
+                       MinDays="1"
+                       StrictMode="true">
     </SfDateRangePicker>
     <CurrencyPairSelector @bind-Value="@CurrencyPair"></CurrencyPairSelector>
     <SfButton @onclick="@RefreshDataAsync" CssClass="e-flat">Refresh</SfButton>

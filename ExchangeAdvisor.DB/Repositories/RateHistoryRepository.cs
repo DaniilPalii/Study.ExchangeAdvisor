@@ -28,23 +28,33 @@ namespace ExchangeAdvisor.DB.Repositories
         {
             await using var dbc = CreateDatabaseContext();
 
-            var history = await dbc.RateHistories.SingleAsync(EqualsBy(currencyPair));
+            var history = await GetHistoryWithoutRatesAsync(dbc, currencyPair);
 
             return await dbc.HistoricalRates.Where(r => r.History.Id == history.Id).MaxAsync(r => r.Day);
+        }
+
+        public async Task<RateHistory> GetAsync(CurrencyPair currencyPair, DateRange dateRange)
+        {
+            await using var dbc = CreateDatabaseContext();
+
+            var history = await GetHistoryWithoutRatesAsync(dbc, currencyPair);
+            history.Rates = await dbc.HistoricalRates.Where(EqualsBy(history, dateRange)).ToArrayAsync();
+
+            return history.ToRateHistory();
         }
 
         public async Task<RateHistory> GetAsync(CurrencyPair currencyPair)
         {
             await using var dbc = CreateDatabaseContext();
 
-            return (await GetFullHistoryAsync(dbc, currencyPair)).ToRateHistory();
+            return (await GetHistoryWithRatesAsync(dbc, currencyPair)).ToRateHistory();
         }
 
         public async Task AddOrUpdateAsync(RateHistory history)
         {
             await using var dbc = CreateDatabaseContext();
 
-            var existingHistory = await GetFullHistoryAsync(dbc, history.CurrencyPair);
+            var existingHistory = await GetHistoryWithRatesAsync(dbc, history.CurrencyPair);
 
             if (existingHistory == null)
                 await dbc.RateHistories.AddAsync(new RateHistoryEntity(history));
@@ -54,9 +64,16 @@ namespace ExchangeAdvisor.DB.Repositories
             await dbc.SaveChangesAsync();
         }
 
-        private static Task<RateHistoryEntity> GetFullHistoryAsync(DatabaseContext dbc, CurrencyPair currencyPair)
+        private static Task<RateHistoryEntity> GetHistoryWithRatesAsync(DatabaseContext dbc, CurrencyPair currencyPair)
         {
             return dbc.RateHistories.Include(h => h.Rates).SingleOrDefaultAsync(EqualsBy(currencyPair));
+        }
+
+        private static Task<RateHistoryEntity> GetHistoryWithoutRatesAsync(
+            DatabaseContext dbc,
+            CurrencyPair currencyPair)
+        {
+            return dbc.RateHistories.SingleOrDefaultAsync(EqualsBy(currencyPair));
         }
 
         private static void Update(DatabaseContext dbc, RateHistoryEntity existingHistory, RateHistory newHistory)
@@ -71,8 +88,15 @@ namespace ExchangeAdvisor.DB.Repositories
 
         private static Expression<Func<RateHistoryEntity, bool>> EqualsBy(CurrencyPair currencyPair)
         {
-            return history => history.BaseCurrency == currencyPair.Base
-                && history.ComparingCurrency == currencyPair.Comparing;
+            return h => h.BaseCurrency == currencyPair.Base
+                && h.ComparingCurrency == currencyPair.Comparing;
+        }
+
+        private Expression<Func<HistoricalRateEntity, bool>> EqualsBy(RateHistoryEntity history, DateRange dateRange)
+        {
+            return r => r.History.Id == history.Id
+                && dateRange.Start <= r.Day.Date
+                && dateRange.End >= r.Day.Date;
         }
     }
 }

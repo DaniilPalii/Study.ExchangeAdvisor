@@ -39,12 +39,12 @@ namespace ExchangeAdvisor.SignalRClient.Shared
 
         private async Task FetchHistoryAsync()
         {
-            History = await RateService.GetHistoryAsync(CurrencyPair);
+            History = await RateService.GetHistoryAsync(CurrencyPair, DateRange);
         }
 
         private async Task FetchActualForecastAsync()
         {
-            ActualForecast = await RateService.GetNewestForecastAsync(CurrencyPair);
+            ActualForecast = await RateService.GetNewestForecastAsync(CurrencyPair, DateRange);
         }
 
         private async Task FetchForecastsMetadataAsync()
@@ -67,7 +67,9 @@ namespace ExchangeAdvisor.SignalRClient.Shared
         private IReadOnlyCollection<RateForecast> OldForecasts { get; set; }
 
         private ICollection<RateForecastMetadata> ForecastsMetadata { get; set; }
-        
+
+        private DateRange DateRange => DateRange.From(StartDate.Value).Until(EndDate.Value);
+
         private DateTime? StartDate { get; set; } = DateTime.Today.AddMonths(-3);
         
         private DateTime? EndDate { get; set; } = DateTime.Today.AddMonths(3);
