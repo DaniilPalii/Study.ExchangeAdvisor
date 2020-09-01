@@ -1,2 +1,2 @@
 # ExchangeAdvisor
-Web-application to forecast profitable currency exchange
+Web-application that forecasts profitable currency exchange.
