@@ -32,6 +32,20 @@ namespace ExchangeAdvisor.DB.Repositories
             return (await GetForecastWithRatesAsync(dbc, currencyPair, creationDay)).ToRateForecast();
         }
 
+        public async Task<IEnumerable<RateForecast>> GetAsync(
+            CurrencyPair currencyPair,
+            IReadOnlyCollection<DateTime> creationDays)
+        {
+            await using var dbc = CreateDatabaseContext();
+
+            var forecasts = await dbc.RateForecasts.Where(EqualsBy(currencyPair))
+                .Where(f => creationDays.Contains(f.CreationDay))
+                .Include(f => f.Rates)
+                .ToListAsync();
+
+            return forecasts.Select(f => f.ToRateForecast());
+        }
+
         public async Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair, DateRange dateRange)
         {
             await using var dbc = CreateDatabaseContext();

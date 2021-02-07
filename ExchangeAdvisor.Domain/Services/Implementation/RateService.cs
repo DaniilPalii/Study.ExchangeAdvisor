@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ExchangeAdvisor.Domain.Values;
 using ExchangeAdvisor.Domain.Values.Rate;
@@ -28,7 +29,7 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
 
             if (missedHistoryRange == null)
                 return;
-            
+
             var webRateHistory = await webHistoryFetcher.FetchAsync(missedHistoryRange.Value, currencyPair);
             await historyRepository.AddOrUpdateAsync(webRateHistory);
 
@@ -64,11 +65,18 @@ namespace ExchangeAdvisor.Domain.Services.Implementation
             return forecastRepository.GetAsync(currencyPair, creationDay);
         }
 
+        public Task<IEnumerable<RateForecast>> GetForecastsAsync(
+            CurrencyPair currencyPair,
+            IReadOnlyCollection<DateTime> creationDays)
+        {
+            return forecastRepository.GetAsync(currencyPair, creationDays);
+        }
+
         private async Task<DateRange?> GetMissedHistoryRangeOrNullAsync(CurrencyPair currencyPair)
         {
             if (!await historyRepository.ExistsAsync(currencyPair))
                 return DateRange.FromMinDate().UntilToday();
-            
+
             var lastHistoricalDay = await historyRepository.GetLastDayAsync(currencyPair);
             if (lastHistoricalDay < DateTime.Today
                 && await webHistoryFetcher.GetLatestRateDate(currencyPair) > lastHistoricalDay)

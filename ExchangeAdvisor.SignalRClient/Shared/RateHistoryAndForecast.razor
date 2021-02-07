@@ -20,7 +20,9 @@
 </div>
 <div class="mt-4">
     <h6>Saved forecasts</h6>
-    <ForecastMetadataTable @bind-Data="@ForecastsMetadata"></ForecastMetadataTable>
+    <ForecastMetadataTable @bind-Data="@ForecastsMetadata"
+                           SelectionChanged="@FetchOldForecastsAsync">
+    </ForecastMetadataTable>
 </div>
 <div class="mt-4">
     <h6>Chart settings</h6>

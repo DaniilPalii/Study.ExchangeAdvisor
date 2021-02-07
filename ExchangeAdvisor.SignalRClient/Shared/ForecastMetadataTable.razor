@@ -1,16 +1,32 @@
-﻿@using ExchangeAdvisor.Domain.Values.Rate
-<SfGrid DataSource="@Data" Width="1000">
+﻿@using ExchangeAdvisor.SignalRClient.ViewModels
+@using SelectionMode = Syncfusion.Blazor.Grids.SelectionMode
+
+<SfGrid DataSource="Data" Width="1000" AllowSelection="true">
+    <GridSelectionSettings Mode="SelectionMode.Row" Type="SelectionType.Multiple"></GridSelectionSettings>
+    <GridEvents TValue="ForecastMetadataTableRowViewModel"
+                RowSelected="@(() => throw new ArithmeticException("llaalal"))"
+                RowSelecting="@(() => throw new ArithmeticException("llaalal1"))"
+                RowDeselected="@(() => throw new ArithmeticException("llaalal12"))"
+                RowDeselecting="@(() => throw new ArithmeticException("llaalal132"))"
+                CellSelected="@(() => throw new ArithmeticException("llaalal2132"))">
+    </GridEvents>
     <GridColumns>
-        <GridColumn Field="@nameof(RateForecastMetadata.CreationDay)"
+        <GridColumn
+                    Type="ColumnType.CheckBox"
+                    Width="50">
+        </GridColumn>
+        <GridColumn Field="@nameof(ForecastMetadataTableRowViewModel.CreationDay)"
                     HeaderText="Creation day"
-                    Width="120"
                     Type="ColumnType.Date"
+                    Width="120"
                     Format="d">
         </GridColumn>
-        <GridColumn Field="@nameof(RateForecastMetadata.CurrencyPair)"
+        <GridColumn Field="@nameof(ForecastMetadataTableRowViewModel.CurrencyPair)"
                     HeaderText="Currency pair"
                     Width="120">
         </GridColumn>
-        <GridColumn Field="@nameof(RateForecastMetadata.Description)" HeaderText="Description"></GridColumn>
+        <GridColumn Field="@nameof(ForecastMetadataTableRowViewModel.Description)"
+                    HeaderText="Description">
+        </GridColumn>
     </GridColumns>
 </SfGrid>

@@ -9,19 +9,21 @@ namespace ExchangeAdvisor.Domain.Services
     public interface IRateForecastRepository
     {
         Task<bool> ExistsAsync(CurrencyPair currencyPair, DateTime creationDay);
-        
+
         Task<RateForecast> GetAsync(CurrencyPair currencyPair, DateTime creationDay);
 
+        Task<IEnumerable<RateForecast>> GetAsync(CurrencyPair currencyPair, IReadOnlyCollection<DateTime> creationDays);
+
         Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair, DateRange dateRange);
-        
+
         Task<RateForecast> GetNewestAsync(CurrencyPair currencyPair);
 
         Task<RateForecastMetadata> GetMetadataAsync(CurrencyPair currencyPair, DateTime creationDay);
-        
+
         Task<IEnumerable<RateForecastMetadata>> GetMetadatasAsync(CurrencyPair currencyPair);
 
         Task AddAsync(RateForecast forecast);
-        
+
         Task UpdateMetadataAsync(RateForecastMetadata metadata);
     }
 }

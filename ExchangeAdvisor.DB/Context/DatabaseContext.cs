@@ -11,7 +11,7 @@ namespace ExchangeAdvisor.DB.Context
         public DbSet<RateForecastEntity> RateForecasts { get; set; }
 
         public DbSet<HistoricalRateEntity> HistoricalRates { get; set; }
-        
+
         public DbSet<ForecastedRateEntity> ForecastedRates { get; set; }
 
         public DatabaseContext(string connectionString)
